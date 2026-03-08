@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+
+  <!-- OFFLINE BANNER -->
+  <div class="offline-banner" id="offlineBanner">
+    <i class="fas fa-wifi-slash"></i>
+    Você está offline — trabalhando com dados locais
+    <button onclick="this.parentElement.classList.remove('show')" style="background:none;border:none;color:white;margin-left:auto;cursor:pointer;"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div class="app-layout">
+
+    <!-- ======= SIDEBAR ======= -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+          <rect width="36" height="36" rx="9" fill="url(#sLogoG)"/>
+          <path d="M18 6C12.477 6 8 10.477 8 16C8 22 18 30 18 30C18 30 28 22 28 16C28 10.477 23.523 6 18 6Z" fill="white" fill-opacity="0.9"/>
+          <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+          <defs>
+            <linearGradient id="sLogoG" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0F2D3A"/>
+              <stop offset="100%" stop-color="#1F6B5C"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <span class="logo-text">Afaia <span>Maps</span></span>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-label">Principal</div>
+          <a href="dashboard.html" class="nav-item active">
+            <i class="fas fa-th-large"></i> Dashboard
+          </a>
+          <a href="app.html" class="nav-item">
+            <i class="fas fa-map"></i> Mapa
+          </a>
+          <a href="maps.html" class="nav-item">
+            <i class="fas fa-layer-group"></i> Biblioteca de Mapas
+          </a>
+          <a href="tracks.html" class="nav-item">
+            <i class="fas fa-route"></i> Trilhas
+          </a>
+          <a href="waypoints.html" class="nav-item">
+            <i class="fas fa-map-pin"></i> Waypoints
+          </a>
+          <a href="projects.html" class="nav-item">
+            <i class="fas fa-folder"></i> Projetos
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Coleta</div>
+          <a href="photos.html" class="nav-item">
+            <i class="fas fa-camera"></i> Fotos
+          </a>
+          <a href="export.html" class="nav-item">
+            <i class="fas fa-file-export"></i> Exportar
+          </a>
+          <a href="sync.html" class="nav-item">
+            <i class="fas fa-sync-alt"></i> Sincronização
+            <span class="sync-badge" id="syncBadge">3</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Administração</div>
+          <a href="admin.html" class="nav-item">
+            <i class="fas fa-desktop"></i> Painel Web
+          </a>
+          <a href="#" class="nav-item">
+            <i class="fas fa-users"></i> Equipe
+          </a>
+          <a href="#" class="nav-item">
+            <i class="fas fa-cog"></i> Configurações
+          </a>
+        </div>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <!-- Offline toggle -->
+        <div class="offline-toggle-wrap">
+          <div class="offline-toggle-label">
+            <i class="fas fa-wifi-slash"></i>
+            <span>Modo Offline</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="offlineToggle" onchange="toggleOfflineMode(this)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="user-mini">
+          <div class="avatar" style="background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;">JS</div>
+          <div class="user-info">
+            <div class="user-name">João Silva</div>
+            <div class="user-role">Geólogo · Plano Pro</div>
+          </div>
+          <i class="fas fa-ellipsis-h" style="color:rgba(255,255,255,0.35);font-size:12px;"></i>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ======= MAIN ======= -->
+    <div class="main-content">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn btn-ghost btn-icon" id="sidebarToggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div>
+            <div class="topbar-title">Dashboard</div>
+            <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">Dom, 08 Mar 2026 · 14:32</div>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <!-- GPS Status -->
+          <div class="gps-status-pill" id="gpsStatusPill">
+            <span class="dot dot-green pulse"></span>
+            <span class="text-mono" style="font-size:11px;">GPS 12 sats</span>
+          </div>
+          <!-- Notifications -->
+          <div class="dropdown" id="notifDropdown">
+            <button class="btn btn-ghost btn-icon" onclick="toggleDropdown('notifDropdown')">
+              <i class="fas fa-bell"></i>
+              <span class="notif-dot"></span>
+            </button>
+            <div class="dropdown-menu notif-menu">
+              <div class="dropdown-header">
+                <span style="font-weight:700;color:var(--color-petroleum);">Notificações</span>
+                <span class="badge badge-green">3 novas</span>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-icon green"><i class="fas fa-sync-alt"></i></div>
+                <div class="notif-content">
+                  <strong>Sincronização concluída</strong>
+                  <span>3 trilhas e 12 waypoints enviados</span>
+                  <time>Há 5 min</time>
+                </div>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-icon blue"><i class="fas fa-file-pdf"></i></div>
+                <div class="notif-content">
+                  <strong>Mapa processado</strong>
+                  <span>mapa_area3.pdf pronto para uso</span>
+                  <time>Há 23 min</time>
+                </div>
+              </div>
+              <div class="notif-item">
+                <div class="notif-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="notif-content">
+                  <strong>Sinal GPS fraco</strong>
+                  <span>Apenas 4 satélites disponíveis</span>
+                  <time>Há 1h</time>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <a href="index.html" class="btn btn-ghost btn-sm" title="Sair">
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </header>
+
+      <!-- PAGE CONTENT -->
+      <main class="page-content">
+
+        <!-- WELCOME BANNER -->
+        <div class="welcome-banner">
+          <div class="welcome-content">
+            <div>
+              <h3>Bom dia, João! 👋</h3>
+              <p>Você tem <strong>3 itens pendentes</strong> de sincronização e <strong>2 mapas</strong> disponíveis offline.</p>
+            </div>
+            <div class="welcome-actions">
+              <a href="app.html" class="btn btn-primary btn-sm">
+                <i class="fas fa-map"></i> Abrir Mapa
+              </a>
+              <a href="maps.html" class="btn btn-outline btn-sm">
+                <i class="fas fa-file-import"></i> Importar Mapa
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="grid grid-4 gap-4 mb-6">
+          <div class="stat-card green">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon green"><i class="fas fa-layer-group"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +2 hoje</span>
+            </div>
+            <div class="stat-value" id="statMaps">8</div>
+            <div class="stat-label">Mapas salvos</div>
+          </div>
+
+          <div class="stat-card blue">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon blue"><i class="fas fa-route"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +1 hoje</span>
+            </div>
+            <div class="stat-value" id="statTracks">24</div>
+            <div class="stat-label">Trilhas gravadas</div>
+          </div>
+
+          <div class="stat-card orange">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon orange"><i class="fas fa-map-pin"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +7 esta semana</span>
+            </div>
+            <div class="stat-value" id="statWaypoints">147</div>
+            <div class="stat-label">Waypoints registrados</div>
+          </div>
+
+          <div class="stat-card" style="">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon teal"><i class="fas fa-camera"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +12 esta semana</span>
+            </div>
+            <div class="stat-value" id="statPhotos">89</div>
+            <div class="stat-label">Fotos georreferenciadas</div>
+          </div>
+        </div>
+
+        <!-- MAIN GRID -->
+        <div class="dashboard-grid">
+
+          <!-- QUICK ACTIONS -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Ações Rápidas</h5>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions-grid">
+                <a href="app.html" class="quick-action-btn">
+                  <div class="qa-icon" style="background:rgba(47,163,124,0.12);color:var(--color-accent-green);">
+                    <i class="fas fa-map-marked-alt"></i>
+                  </div>
+                  <span>Abrir Mapa</span>
+                </a>
+                <a href="maps.html" class="quick-action-btn" onclick="openImportModal()">
+                  <div class="qa-icon" style="background:rgba(22,63,89,0.12);color:var(--color-deep-blue);">
+                    <i class="fas fa-file-import"></i>
+                  </div>
+                  <span>Importar Mapa</span>
+                </a>
+                <a href="tracks.html" class="quick-action-btn">
+                  <div class="qa-icon" style="background:rgba(229,138,43,0.12);color:var(--color-alert);">
+                    <i class="fas fa-play-circle"></i>
+                  </div>
+                  <span>Gravar Trilha</span>
+                </a>
+                <a href="waypoints.html" class="quick-action-btn">
+                  <div class="qa-icon" style="background:rgba(31,107,92,0.12);color:var(--color-map-green);">
+                    <i class="fas fa-map-pin"></i>
+                  </div>
+                  <span>Novo Ponto</span>
+                </a>
+                <a href="projects.html" class="quick-action-btn">
+                  <div class="qa-icon" style="background:rgba(15,45,58,0.08);color:var(--color-petroleum);">
+                    <i class="fas fa-folder-plus"></i>
+                  </div>
+                  <span>Meus Projetos</span>
+                </a>
+                <a href="export.html" class="quick-action-btn">
+                  <div class="qa-icon" style="background:rgba(201,75,75,0.1);color:var(--color-error);">
+                    <i class="fas fa-file-export"></i>
+                  </div>
+                  <span>Exportar</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT MAPS -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Mapas Recentes</h5>
+              <a href="maps.html" class="btn btn-ghost btn-xs">Ver todos</a>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div class="map-list" id="recentMapsList">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RECENT TRACKS -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Trilhas Recentes</h5>
+              <a href="tracks.html" class="btn btn-ghost btn-xs">Ver todas</a>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div id="tracksList">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIVITY CHART -->
+          <div class="card dashboard-chart-card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Atividade — Últimos 7 dias</h5>
+              <div class="tabs" style="width:auto;">
+                <button class="tab active" onclick="switchChart('waypoints', this)">Pontos</button>
+                <button class="tab" onclick="switchChart('distance', this)">Distância</button>
+              </div>
+            </div>
+            <div class="card-body" style="height:240px;position:relative;">
+              <canvas id="activityChart"></canvas>
+            </div>
+          </div>
+
+          <!-- SYNC STATUS -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">
+                <i class="fas fa-sync-alt" style="color:var(--color-accent-green);margin-right:6px;"></i>
+                Sincronização
+              </h5>
+              <button class="btn btn-primary btn-xs" onclick="syncNow()">
+                <i class="fas fa-sync-alt"></i> Sincronizar
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="sync-items" id="syncItems">
+                <!-- Populated by JS -->
+              </div>
+              <div class="sync-stats">
+                <div class="sync-stat">
+                  <span class="text-mono" style="font-size:11px;">Último sync</span>
+                  <strong style="font-size:var(--text-sm);">Há 12 min</strong>
+                </div>
+                <div class="sync-stat">
+                  <span class="text-mono" style="font-size:11px;">Pendentes</span>
+                  <strong style="font-size:var(--text-sm);color:var(--color-alert);">3 itens</strong>
+                </div>
+                <div class="sync-stat">
+                  <span class="text-mono" style="font-size:11px;">Armazenamento</span>
+                  <strong style="font-size:var(--text-sm);">2.4 / 10 GB</strong>
+                </div>
+              </div>
+              <div class="progress-wrap mt-4">
+                <div class="progress-bar" style="width:24%"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="font-size:10px;color:var(--color-gray-mid);">2.4 GB usados</span>
+                <span style="font-size:10px;color:var(--color-gray-mid);">10 GB total</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPS CARD -->
+          <div class="card gps-card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">
+                <span class="dot dot-green pulse" style="margin-right:6px;"></span>
+                Status GPS
+              </h5>
+              <span class="badge badge-green">Ativo</span>
+            </div>
+            <div class="card-body">
+              <div class="gps-display">
+                <div class="gps-coord-pair">
+                  <div class="gps-coord">
+                    <span class="coord-key">LAT</span>
+                    <span class="coord-val-lg" id="dashLat">-23.5505°</span>
+                  </div>
+                  <div class="gps-coord">
+                    <span class="coord-key">LNG</span>
+                    <span class="coord-val-lg" id="dashLng">-46.6333°</span>
+                  </div>
+                </div>
+                <div class="gps-extras">
+                  <div class="gps-extra-item">
+                    <i class="fas fa-mountain"></i>
+                    <span class="text-mono" id="dashAlt">752m alt</span>
+                  </div>
+                  <div class="gps-extra-item">
+                    <i class="fas fa-satellite-dish"></i>
+                    <span class="text-mono" id="dashSats">12 sats</span>
+                  </div>
+                  <div class="gps-extra-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span class="text-mono" id="dashAcc">±3m precisão</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.dashboard-grid -->
+
+        <!-- RECENT WAYPOINTS TABLE -->
+        <div class="card mt-6">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Waypoints Recentes</h5>
+            <a href="waypoints.html" class="btn btn-ghost btn-xs">Ver todos</a>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Categoria</th>
+                  <th>Coordenadas</th>
+                  <th>Projeto</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="waypointsTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </main>
+    </div><!-- /.main-content -->
+  </div><!-- /.app-layout -->
+
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <script src="js/app.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — App Mobile & Modo Offline</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="app-body">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+        <rect width="36" height="36" rx="9" fill="url(#sLGM)"/>
+        <path d="M18 6C12.5 6 8 10.5 8 16C8 22 18 30 18 30S28 22 28 16C28 10.5 23.5 6 18 6Z" fill="white" fill-opacity="0.9"/>
+        <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+        <defs><linearGradient id="sLGM" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0F2D3A"/><stop offset="100%" stop-color="#1F6B5C"/></linearGradient></defs>
+      </svg>
+      <span class="logo-text">Afaia <span>Maps</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="app.html" class="nav-item"><i class="fas fa-map"></i> Mapa ao Vivo</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Ferramentas</div>
+        <a href="maps.html" class="nav-item"><i class="fas fa-layer-group"></i> Biblioteca de Mapas</a>
+        <a href="tracks.html" class="nav-item"><i class="fas fa-route"></i> Trilhas</a>
+        <a href="waypoints.html" class="nav-item"><i class="fas fa-map-pin"></i> Waypoints</a>
+        <a href="projects.html" class="nav-item"><i class="fas fa-folder"></i> Projetos</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Referência</div>
+        <a href="mobile.html" class="nav-item active"><i class="fas fa-mobile-alt"></i> App Mobile & Offline</a>
+        <a href="admin.html" class="nav-item"><i class="fas fa-chart-bar"></i> Painel Admin</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar-text" style="width:36px;height:36px;font-size:12px;">JS</div>
+        <div class="user-info">
+          <div class="user-name">João Silva</div>
+          <div class="user-role">Geólogo · Plano Pro</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <div class="topbar-title">App Mobile & Modo Offline</div>
+          <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">Arquitetura, fluxos e funcionamento da versão Flutter</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="badge badge-teal" style="font-size:11px;">
+          <i class="fas fa-mobile-alt" style="margin-right:5px;"></i>Flutter SDK
+        </span>
+        <span id="offlineSimBadge" class="badge badge-green" style="cursor:pointer;" onclick="toggleOfflineSim()">
+          <span class="dot dot-green pulse" style="width:7px;height:7px;margin-right:5px;"></span>Online
+        </span>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- HERO BANNER -->
+      <div class="offline-hero mb-6">
+        <div class="offline-hero-content">
+          <div class="offline-hero-badge">
+            <i class="fas fa-wifi-slash"></i> OFFLINE-FIRST
+          </div>
+          <h2 class="offline-hero-title">Trabalha onde não tem sinal.</h2>
+          <p class="offline-hero-subtitle">
+            O Afaia Maps foi construído do zero para operar 100% offline. Mapas, GPS, trilhas, waypoints e coleta de dados funcionam sem nenhuma conexão. Quando o sinal voltar, tudo sincroniza automaticamente.
+          </p>
+          <div class="offline-hero-stats">
+            <div class="oh-stat">
+              <span class="oh-num">100%</span>
+              <span class="oh-label">Funcional offline</span>
+            </div>
+            <div class="oh-stat">
+              <span class="oh-num">0s</span>
+              <span class="oh-label">Latência no campo</span>
+            </div>
+            <div class="oh-stat">
+              <span class="oh-num">∞</span>
+              <span class="oh-label">Mapas armazenados</span>
+            </div>
+            <div class="oh-stat">
+              <span class="oh-num">Auto</span>
+              <span class="oh-label">Sincronização</span>
+            </div>
+          </div>
+        </div>
+        <div class="offline-hero-visual">
+          <div class="phone-mockup" id="phoneMockup">
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <div class="phone-screen-content" id="phoneScreenContent">
+                  <!-- Rendered by JS -->
+                </div>
+              </div>
+              <div class="phone-home-bar"></div>
+            </div>
+            <!-- Signal bars -->
+            <div class="signal-indicator" id="signalIndicator">
+              <span class="sig-bar" style="height:6px;"></span>
+              <span class="sig-bar" style="height:10px;"></span>
+              <span class="sig-bar" style="height:14px;"></span>
+              <span class="sig-bar" style="height:18px;"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABS DE NAVEGAÇÃO -->
+      <div class="admin-tabs-bar mb-6" id="mainTabs">
+        <button class="admin-tab active" onclick="showSection('architecture', this)">
+          <i class="fas fa-sitemap"></i> Arquitetura
+        </button>
+        <button class="admin-tab" onclick="showSection('offline', this)">
+          <i class="fas fa-wifi-slash"></i> Modo Offline
+        </button>
+        <button class="admin-tab" onclick="showSection('sync', this)">
+          <i class="fas fa-sync-alt"></i> Sincronização
+        </button>
+        <button class="admin-tab" onclick="showSection('modules', this)">
+          <i class="fas fa-th-large"></i> Módulos
+        </button>
+        <button class="admin-tab" onclick="showSection('geodata', this)">
+          <i class="fas fa-file-pdf"></i> GeoPDF & Mapas
+        </button>
+        <button class="admin-tab" onclick="showSection('flow', this)">
+          <i class="fas fa-project-diagram"></i> Fluxos
+        </button>
+      </div>
+
+      <!-- ================================================================
+           SECTION: ARQUITETURA
+           ================================================================ -->
+      <div id="sectionArchitecture">
+
+        <!-- Stack tecnológico -->
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">Stack Tecnológico</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">Cada camada foi escolhida para máxima performance em campo</p>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-4);margin-bottom:var(--space-6);">
+          <!-- Flutter -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#0F2D3A,#1565C0);">
+              <i class="fas fa-mobile-alt"></i>
+              <span>Flutter</span>
+              <span class="tech-version">3.x</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Framework UI cross-platform compilado nativamente para iOS e Android. Um único codebase, desempenho nativo.</p>
+              <div class="tech-tags">
+                <span>Dart</span><span>Material 3</span><span>Custom Widgets</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MapLibre -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#1F6B5C,#2FA37C);">
+              <i class="fas fa-map"></i>
+              <span>MapLibre GL</span>
+              <span class="tech-version">Flutter SDK</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Renderização de mapas vetoriais e raster com suporte a tiles offline (MBTiles). GPU-accelerated, 60fps.</p>
+              <div class="tech-tags">
+                <span>Vector Tiles</span><span>Raster Tiles</span><span>MBTiles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hive DB -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#E58A2B,#C94B4B);">
+              <i class="fas fa-database"></i>
+              <span>Hive DB</span>
+              <span class="tech-version">Local NoSQL</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Banco de dados NoSQL local ultra-rápido (10× mais rápido que SQLite). Armazena waypoints, trilhas e metadados offline.</p>
+              <div class="tech-tags">
+                <span>NoSQL</span><span>Typed Boxes</span><span>Lazy Loading</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GPS -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#163F59,#0F2D3A);">
+              <i class="fas fa-satellite-dish"></i>
+              <span>GPS Background</span>
+              <span class="tech-version">Contínuo</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Plugin background_geolocation para rastreamento GPS contínuo mesmo com a tela bloqueada. Filtros de precisão adaptivos.</p>
+              <div class="tech-tags">
+                <span>Background Mode</span><span>±3m acurácia</span><span>Waypoint trigger</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GDAL / PDF -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#C94B4B,#8B1A1A);">
+              <i class="fas fa-file-pdf"></i>
+              <span>GDAL Mobile</span>
+              <span class="tech-version">GeoPDF + GeoTIFF</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Biblioteca GDAL compilada para ARM via FFI. Valida georreferência, extrai bounds e gera tiles pyramid para render.</p>
+              <div class="tech-tags">
+                <span>FFI Bridge</span><span>Tile Pyramid</span><span>EPSG Reprojection</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sync Queue -->
+          <div class="tech-card">
+            <div class="tech-card-header" style="background:linear-gradient(135deg,#1F6B5C,#163F59);">
+              <i class="fas fa-sync-alt"></i>
+              <span>Sync Engine</span>
+              <span class="tech-version">Conflict-free</span>
+            </div>
+            <div class="tech-card-body">
+              <p>Motor de sincronização com fila persistente, retry exponencial e resolução de conflitos via CRDT (Last-Write-Wins por padrão).</p>
+              <div class="tech-tags">
+                <span>Queue Persistente</span><span>Retry</span><span>Delta Sync</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagrama de camadas -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">
+              <i class="fas fa-layer-group" style="color:var(--color-accent-green);margin-right:8px;"></i>
+              Arquitetura em Camadas — Clean Architecture
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="arch-layers">
+              <!-- UI Layer -->
+              <div class="arch-layer" style="--layer-color:#2FA37C;">
+                <div class="arch-layer-label">
+                  <i class="fas fa-mobile-alt"></i> Presentation Layer
+                </div>
+                <div class="arch-layer-items">
+                  <div class="arch-item">Map Screen</div>
+                  <div class="arch-item">Track Recorder UI</div>
+                  <div class="arch-item">Waypoint Form</div>
+                  <div class="arch-item">PDF Import Flow</div>
+                  <div class="arch-item">Offline Library</div>
+                  <div class="arch-item">Sync Status UI</div>
+                </div>
+                <div class="arch-layer-desc">Flutter Widgets + BLoC/Riverpod State Management</div>
+              </div>
+
+              <!-- Domain Layer -->
+              <div class="arch-layer" style="--layer-color:#163F59;">
+                <div class="arch-layer-label">
+                  <i class="fas fa-cogs"></i> Domain Layer
+                </div>
+                <div class="arch-layer-items">
+                  <div class="arch-item">MapUseCase</div>
+                  <div class="arch-item">TrackUseCase</div>
+                  <div class="arch-item">WaypointUseCase</div>
+                  <div class="arch-item">GeoValidation</div>
+                  <div class="arch-item">SyncUseCase</div>
+                  <div class="arch-item">ExportUseCase</div>
+                </div>
+                <div class="arch-layer-desc">Regras de negócio puras, sem dependências externas</div>
+              </div>
+
+              <!-- Data Layer -->
+              <div class="arch-layer" style="--layer-color:#E58A2B;">
+                <div class="arch-layer-label">
+                  <i class="fas fa-database"></i> Data Layer
+                </div>
+                <div class="arch-layer-items">
+                  <div class="arch-item">Hive LocalDB</div>
+                  <div class="arch-item">MBTiles Store</div>
+                  <div class="arch-item">GPS Service</div>
+                  <div class="arch-item">GDAL FFI</div>
+                  <div class="arch-item">REST API Client</div>
+                  <div class="arch-item">File System</div>
+                </div>
+                <div class="arch-layer-desc">Repositórios com fallback local-first automático</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================
+           SECTION: MODO OFFLINE
+           ================================================================ -->
+      <div id="sectionOffline" style="display:none;">
+
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">Como o Modo Offline Funciona</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">Cada dado tem seu ciclo de vida local antes de ir para a nuvem</p>
+          </div>
+          <div style="display:flex;gap:var(--space-3);align-items:center;">
+            <div class="offline-status-pill" id="offlinePill">
+              <span class="dot dot-green pulse" style="width:8px;height:8px;"></span>
+              <span id="offlinePillText">Online — sincronizado</span>
+            </div>
+            <button class="btn btn-sm" id="offlineToggleBtn" onclick="toggleOfflineSim()"
+              style="background:var(--color-petroleum);color:white;border-radius:var(--radius-full);font-size:var(--text-xs);">
+              <i class="fas fa-toggle-on" id="offlineToggleIcon"></i> Simular offline
+            </button>
+          </div>
+        </div>
+
+        <!-- Offline strategy cards -->
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-4);margin-bottom:var(--space-6);">
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(47,163,124,0.12);">
+              <i class="fas fa-map" style="color:#2FA37C;"></i>
+            </div>
+            <h6>Mapas Offline</h6>
+            <p>Tiles de mapa são baixados preventivamente em formato MBTiles (SQLite). Cada tile é indexado por zoom/x/y e servido localmente via MapLibre sem necessidade de rede.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-hdd"></i> SQLite local</span>
+              <span><i class="fas fa-th"></i> Tiles z0–z17</span>
+              <span><i class="fas fa-compress-alt"></i> GZIP comprimido</span>
+            </div>
+          </div>
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(229,138,43,0.12);">
+              <i class="fas fa-route" style="color:#E58A2B;"></i>
+            </div>
+            <h6>Trilhas em Tempo Real</h6>
+            <p>Pontos GPS são gravados diretamente no Hive DB local a cada segundo. O buffer funciona sem rede. Ao gravar, o arquivo GPX é gerado localmente e enfileirado para sync.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-clock"></i> 1Hz logging</span>
+              <span><i class="fas fa-filter"></i> Kalman filter</span>
+              <span><i class="fas fa-file"></i> GPX local</span>
+            </div>
+          </div>
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(22,63,89,0.12);">
+              <i class="fas fa-map-pin" style="color:#163F59;"></i>
+            </div>
+            <h6>Waypoints & Coleta</h6>
+            <p>Pontos criados, fotos capturadas e formulários preenchidos são salvos no Hive com UUID local. Nenhum dado é perdido. Ao conectar, o servidor resolve conflitos via timestamp.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-fingerprint"></i> UUID local</span>
+              <span><i class="fas fa-camera"></i> Fotos em cache</span>
+              <span><i class="fas fa-check-double"></i> Zero perda</span>
+            </div>
+          </div>
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(201,75,75,0.12);">
+              <i class="fas fa-file-pdf" style="color:#C94B4B;"></i>
+            </div>
+            <h6>GeoPDF Offline</h6>
+            <p>PDFs importados são processados pelo GDAL no dispositivo. As tiles são geradas localmente e armazenadas no MBTiles Store. O arquivo original fica no File System para re-geração.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-cogs"></i> GDAL on-device</span>
+              <span><i class="fas fa-cubes"></i> Tile pyramid</span>
+              <span><i class="fas fa-layer-group"></i> Layer overlay</span>
+            </div>
+          </div>
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(31,107,92,0.12);">
+              <i class="fas fa-satellite-dish" style="color:#1F6B5C;"></i>
+            </div>
+            <h6>GPS Contínuo</h6>
+            <p>Localização funciona 100% via hardware GPS do dispositivo — independente de rede. Modo background ativo mesmo com tela bloqueada. Bateria otimizada com adaptive sampling.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-broadcast-tower"></i> Hardware GPS</span>
+              <span><i class="fas fa-battery-three-quarters"></i> Adaptive Hz</span>
+              <span><i class="fas fa-lock"></i> Background mode</span>
+            </div>
+          </div>
+
+          <div class="offline-feature-card">
+            <div class="off-feat-icon" style="background:rgba(22,63,89,0.12);">
+              <i class="fas fa-shield-alt" style="color:#163F59;"></i>
+            </div>
+            <h6>Segurança & Integridade</h6>
+            <p>Todos os dados locais são encriptados com AES-256 via Flutter Secure Storage. Logs de operações garantem integridade. Fallback de dados críticos em múltiplas cópias locais.</p>
+            <div class="off-feat-detail">
+              <span><i class="fas fa-lock"></i> AES-256</span>
+              <span><i class="fas fa-history"></i> Op log</span>
+              <span><i class="fas fa-copy"></i> Redundância</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Simulador visual offline -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">
+              <i class="fas fa-signal" style="color:var(--color-accent-green);margin-right:8px;"></i>
+              Simulação — O que acontece ao perder o sinal
+            </h5>
+            <button class="btn btn-primary btn-sm" onclick="runOfflineDemo()">
+              <i class="fas fa-play" id="demoPlayIcon"></i> Executar simulação
+            </button>
+          </div>
+          <div class="card-body" style="padding:0;">
+            <div class="offline-timeline" id="offlineTimeline">
+              <div class="otl-intro">
+                <i class="fas fa-play-circle" style="font-size:32px;color:var(--color-gray-mid);margin-bottom:12px;display:block;"></i>
+                Clique em "Executar simulação" para ver passo a passo o que acontece quando o dispositivo perde e recupera o sinal.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hive Schema -->
+        <div class="card">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">
+              <i class="fas fa-table" style="color:var(--color-accent-green);margin-right:8px;"></i>
+              Esquema do Banco Local (Hive DB)
+            </h5>
+            <span class="badge badge-gray">NoSQL · Typed</span>
+          </div>
+          <div class="card-body">
+            <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-4);">
+              <div class="hive-box">
+                <div class="hive-box-header" style="background:rgba(47,163,124,0.1);border-color:rgba(47,163,124,0.2);">
+                  <i class="fas fa-layer-group" style="color:#2FA37C;"></i>
+                  <code>maps_box</code>
+                </div>
+                <div class="hive-fields">
+                  <div class="hive-field"><span class="hf-key">id</span><span class="hf-type">String (UUID)</span></div>
+                  <div class="hive-field"><span class="hf-key">name</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">type</span><span class="hf-type">Enum</span></div>
+                  <div class="hive-field"><span class="hf-key">mbtiles_path</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">bounds</span><span class="hf-type">LatLngBounds</span></div>
+                  <div class="hive-field"><span class="hf-key">georeferenced</span><span class="hf-type">bool</span></div>
+                  <div class="hive-field"><span class="hf-key">sync_status</span><span class="hf-type">SyncStatus</span></div>
+                  <div class="hive-field"><span class="hf-key">downloaded_at</span><span class="hf-type">DateTime</span></div>
+                </div>
+              </div>
+
+              <div class="hive-box">
+                <div class="hive-box-header" style="background:rgba(229,138,43,0.1);border-color:rgba(229,138,43,0.2);">
+                  <i class="fas fa-route" style="color:#E58A2B;"></i>
+                  <code>tracks_box</code>
+                </div>
+                <div class="hive-fields">
+                  <div class="hive-field"><span class="hf-key">id</span><span class="hf-type">String (UUID)</span></div>
+                  <div class="hive-field"><span class="hf-key">name</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">points</span><span class="hf-type">List&lt;GpsPoint&gt;</span></div>
+                  <div class="hive-field"><span class="hf-key">distance_m</span><span class="hf-type">double</span></div>
+                  <div class="hive-field"><span class="hf-key">duration_s</span><span class="hf-type">int</span></div>
+                  <div class="hive-field"><span class="hf-key">status</span><span class="hf-type">TrackStatus</span></div>
+                  <div class="hive-field"><span class="hf-key">gpx_path</span><span class="hf-type">String?</span></div>
+                  <div class="hive-field"><span class="hf-key">sync_status</span><span class="hf-type">SyncStatus</span></div>
+                </div>
+              </div>
+
+              <div class="hive-box">
+                <div class="hive-box-header" style="background:rgba(22,63,89,0.1);border-color:rgba(22,63,89,0.2);">
+                  <i class="fas fa-map-pin" style="color:#163F59;"></i>
+                  <code>waypoints_box</code>
+                </div>
+                <div class="hive-fields">
+                  <div class="hive-field"><span class="hf-key">id</span><span class="hf-type">String (UUID)</span></div>
+                  <div class="hive-field"><span class="hf-key">name</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">lat / lon / alt</span><span class="hf-type">double</span></div>
+                  <div class="hive-field"><span class="hf-key">category</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">photos</span><span class="hf-type">List&lt;String&gt;</span></div>
+                  <div class="hive-field"><span class="hf-key">form_data</span><span class="hf-type">Map&lt;String,dynamic&gt;</span></div>
+                  <div class="hive-field"><span class="hf-key">created_at</span><span class="hf-type">DateTime</span></div>
+                  <div class="hive-field"><span class="hf-key">sync_status</span><span class="hf-type">SyncStatus</span></div>
+                </div>
+              </div>
+
+              <div class="hive-box">
+                <div class="hive-box-header" style="background:rgba(31,107,92,0.1);border-color:rgba(31,107,92,0.2);">
+                  <i class="fas fa-sync-alt" style="color:#1F6B5C;"></i>
+                  <code>sync_queue_box</code>
+                </div>
+                <div class="hive-fields">
+                  <div class="hive-field"><span class="hf-key">id</span><span class="hf-type">String (UUID)</span></div>
+                  <div class="hive-field"><span class="hf-key">entity_type</span><span class="hf-type">Enum</span></div>
+                  <div class="hive-field"><span class="hf-key">entity_id</span><span class="hf-type">String</span></div>
+                  <div class="hive-field"><span class="hf-key">operation</span><span class="hf-type">CREATE|UPDATE|DELETE</span></div>
+                  <div class="hive-field"><span class="hf-key">payload</span><span class="hf-type">String (JSON)</span></div>
+                  <div class="hive-field"><span class="hf-key">retry_count</span><span class="hf-type">int</span></div>
+                  <div class="hive-field"><span class="hf-key">status</span><span class="hf-type">PENDING|DONE|FAILED</span></div>
+                  <div class="hive-field"><span class="hf-key">created_at</span><span class="hf-type">DateTime</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================
+           SECTION: SINCRONIZAÇÃO
+           ================================================================ -->
+      <div id="sectionSync" style="display:none;">
+
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">Motor de Sincronização</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">Como os dados saem do dispositivo e chegam ao servidor</p>
+          </div>
+        </div>
+
+        <!-- Sync pipeline visual -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Pipeline de Sincronização</h5>
+            <button class="btn btn-primary btn-sm" onclick="animateSyncPipeline()">
+              <i class="fas fa-play"></i> Animar
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="sync-pipeline" id="syncPipeline">
+              <div class="sp-stage" id="spStage1">
+                <div class="sp-icon"><i class="fas fa-mobile-alt"></i></div>
+                <div class="sp-label">Dispositivo<br><small>Hive DB local</small></div>
+              </div>
+              <div class="sp-arrow" id="spArrow1">
+                <div class="sp-arrow-line"></div>
+                <div class="sp-arrow-label">Detecta conexão</div>
+              </div>
+              <div class="sp-stage" id="spStage2">
+                <div class="sp-icon"><i class="fas fa-list-ol"></i></div>
+                <div class="sp-label">Fila de Sync<br><small>sync_queue_box</small></div>
+              </div>
+              <div class="sp-arrow" id="spArrow2">
+                <div class="sp-arrow-line"></div>
+                <div class="sp-arrow-label">Processa em lote</div>
+              </div>
+              <div class="sp-stage" id="spStage3">
+                <div class="sp-icon"><i class="fas fa-shield-alt"></i></div>
+                <div class="sp-label">Validação<br><small>JWT + Schema</small></div>
+              </div>
+              <div class="sp-arrow" id="spArrow3">
+                <div class="sp-arrow-line"></div>
+                <div class="sp-arrow-label">HTTPS/REST</div>
+              </div>
+              <div class="sp-stage" id="spStage4">
+                <div class="sp-icon"><i class="fas fa-server"></i></div>
+                <div class="sp-label">FastAPI<br><small>Servidor</small></div>
+              </div>
+              <div class="sp-arrow" id="spArrow4">
+                <div class="sp-arrow-line"></div>
+                <div class="sp-arrow-label">PostGIS write</div>
+              </div>
+              <div class="sp-stage" id="spStage5">
+                <div class="sp-icon"><i class="fas fa-database"></i></div>
+                <div class="sp-label">PostgreSQL<br><small>+ PostGIS</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conflict resolution -->
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-5);margin-bottom:var(--space-5);">
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Resolução de Conflitos</h5>
+              <span class="badge badge-blue">CRDT</span>
+            </div>
+            <div class="card-body">
+              <div class="conflict-scenario">
+                <div class="cs-label">Cenário mais comum</div>
+                <div class="cs-steps">
+                  <div class="cs-step">
+                    <div class="cs-step-num">1</div>
+                    <div>João edita waypoint A <strong>offline</strong></div>
+                  </div>
+                  <div class="cs-step">
+                    <div class="cs-step-num">2</div>
+                    <div>Maria edita o mesmo waypoint A <strong>online</strong></div>
+                  </div>
+                  <div class="cs-step">
+                    <div class="cs-step-num">3</div>
+                    <div>João reconecta — conflito detectado</div>
+                  </div>
+                  <div class="cs-step ok">
+                    <div class="cs-step-num" style="background:#2FA37C;">✓</div>
+                    <div>Versão mais recente (timestamp) vence. Ambas ficam no histórico.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:var(--space-4);padding:var(--space-3);background:var(--color-fog);border-radius:var(--radius-md);">
+                <div style="font-size:var(--text-xs);font-weight:700;color:var(--color-petroleum);margin-bottom:8px;">Estratégias configuráveis:</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                  <label class="conflict-option active"><input type="radio" name="conflict" checked> <strong>Last-Write-Wins</strong> — padrão, timestamp mais recente</label>
+                  <label class="conflict-option"><input type="radio" name="conflict"> <strong>Server-Wins</strong> — dado do servidor prevalece</label>
+                  <label class="conflict-option"><input type="radio" name="conflict"> <strong>Client-Wins</strong> — dado do dispositivo prevalece</label>
+                  <label class="conflict-option"><input type="radio" name="conflict"> <strong>Manual</strong> — usuário escolhe qual versão manter</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Status da Fila de Sync</h5>
+              <button class="btn btn-ghost btn-sm" onclick="refreshSyncQueue()"><i class="fas fa-refresh"></i></button>
+            </div>
+            <div style="padding:0;" id="syncQueueList">
+              <!-- Rendered by JS -->
+            </div>
+            <div style="padding:var(--space-3) var(--space-5);border-top:1px solid var(--color-fog);">
+              <button class="btn btn-primary btn-sm" style="width:100%;justify-content:center;" onclick="syncNow()">
+                <i class="fas fa-sync-alt"></i> Sincronizar agora
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Retry policy -->
+        <div class="card">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Política de Retry — Exponential Backoff</h5>
+          </div>
+          <div class="card-body">
+            <div class="retry-timeline">
+              <div class="rt-event error">
+                <div class="rt-dot"></div>
+                <div class="rt-content">
+                  <div class="rt-title">1ª Tentativa falha</div>
+                  <div class="rt-time">t = 0s</div>
+                </div>
+              </div>
+              <div class="rt-wait">Aguarda <strong>2s</strong></div>
+              <div class="rt-event error">
+                <div class="rt-dot"></div>
+                <div class="rt-content">
+                  <div class="rt-title">2ª Tentativa falha</div>
+                  <div class="rt-time">t = 2s</div>
+                </div>
+              </div>
+              <div class="rt-wait">Aguarda <strong>4s</strong></div>
+              <div class="rt-event error">
+                <div class="rt-dot"></div>
+                <div class="rt-content">
+                  <div class="rt-title">3ª Tentativa falha</div>
+                  <div class="rt-time">t = 6s</div>
+                </div>
+              </div>
+              <div class="rt-wait">Aguarda <strong>8s → 16s → 30s (máx.)</strong></div>
+              <div class="rt-event success">
+                <div class="rt-dot"></div>
+                <div class="rt-content">
+                  <div class="rt-title">Conexão retorna → Sync completo!</div>
+                  <div class="rt-time">✓ Dados enviados, fila limpa</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:var(--space-4);padding:var(--space-3);background:rgba(47,163,124,0.06);border-radius:var(--radius-md);border:1px solid rgba(47,163,124,0.15);font-size:var(--text-xs);color:var(--color-gray-dark);">
+              <i class="fas fa-info-circle" style="color:#2FA37C;margin-right:6px;"></i>
+              Após <strong>5 tentativas</strong> consecutivas sem sucesso, o item é marcado como <code style="background:rgba(201,75,75,0.1);color:#C94B4B;padding:1px 5px;border-radius:3px;">FAILED</code> e notifica o usuário. Pode ser re-enfileirado manualmente.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================
+           SECTION: MÓDULOS
+           ================================================================ -->
+      <div id="sectionModules" style="display:none;">
+
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">Módulos do App Mobile</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">Todas as telas e funcionalidades do app Flutter</p>
+          </div>
+        </div>
+
+        <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:var(--space-4);">
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#0F2D3A,#163F59);">
+              <i class="fas fa-map"></i>
+              <div>
+                <div class="module-name">Mapa Principal</div>
+                <div class="module-status online">Online & Offline</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Visualização de raster e vector tiles</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Overlay de GeoPDF/GeoTIFF</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Posição GPS em tempo real</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Camadas: waypoints, trilhas, áreas</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Busca de locais (offline geocoder)</div>
+              <div class="module-feature offline-only"><i class="fas fa-wifi-slash"></i> Tiles do MBTiles local</div>
+            </div>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#E58A2B,#B5641A);">
+              <i class="fas fa-route"></i>
+              <div>
+                <div class="module-name">Gravador de Trilhas</div>
+                <div class="module-status online">Online & Offline</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Iniciar / pausar / retomar / parar</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Timer, distância, velocidade, altitude</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Perfil de elevação em tempo real</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Waypoints automáticos por distância</div>
+              <div class="module-feature offline-only"><i class="fas fa-wifi-slash"></i> 100% local — GPS puro</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Export GPX/KML local</div>
+            </div>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#163F59,#1F6B5C);">
+              <i class="fas fa-map-pin"></i>
+              <div>
+                <div class="module-name">Waypoints & Coleta</div>
+                <div class="module-status online">Online & Offline</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Criar ponto com coordenada GPS atual</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Categorias, ícones e cores</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Captura de fotos georreferenciadas</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Formulários de coleta customizáveis</div>
+              <div class="module-feature offline-only"><i class="fas fa-wifi-slash"></i> Hive local — UUID offline</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Exportar GeoJSON</div>
+            </div>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#C94B4B,#8B1A1A);">
+              <i class="fas fa-file-pdf"></i>
+              <div>
+                <div class="module-name">Importação GeoPDF</div>
+                <div class="module-status partial">Import online, uso offline</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Seleção de arquivo do dispositivo</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Validação de georreferência (GDAL)</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Geração de tile pyramid local</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Preview com bounds e CRS</div>
+              <div class="module-feature offline-only"><i class="fas fa-wifi-slash"></i> Tiles armazenados offline</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Overlay com GPS ao vivo</div>
+            </div>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#2FA37C,#1F6B5C);">
+              <i class="fas fa-layer-group"></i>
+              <div>
+                <div class="module-name">Biblioteca Offline</div>
+                <div class="module-status online">Gerenciada online</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Lista de mapas disponíveis</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Download com progresso e ETA</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Gerenciamento de espaço em disco</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Atualização delta (só o que mudou)</div>
+              <div class="module-feature offline-only"><i class="fas fa-wifi-slash"></i> Uso 100% offline após download</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Organização por projeto</div>
+            </div>
+          </div>
+
+          <div class="module-card">
+            <div class="module-card-top" style="background:linear-gradient(135deg,#1F6B5C,#163F59);">
+              <i class="fas fa-sync-alt"></i>
+              <div>
+                <div class="module-name">Painel de Sincronização</div>
+                <div class="module-status partial">Requer conexão</div>
+              </div>
+            </div>
+            <div class="module-card-body">
+              <div class="module-feature"><i class="fas fa-check"></i> Fila de itens pendentes</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Status por item (ok/pendente/erro)</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Sync manual ou automático</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Histórico de sincronizações</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Resolução de conflitos</div>
+              <div class="module-feature"><i class="fas fa-check"></i> Upload de fotos em background</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================================================================
+           SECTION: GEODATA
+           ================================================================ -->
+      <div id="sectionGeodata" style="display:none;">
+
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">GeoPDF & Mapas Offline</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">O diferencial central do Afaia Maps</p>
+          </div>
+        </div>
+
+        <!-- Import flow -->
+        <div class="card mb-6">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">
+              <i class="fas fa-project-diagram" style="color:#C94B4B;margin-right:8px;"></i>
+              Pipeline de Importação GeoPDF
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="pdf-pipeline">
+              <div class="pp-step" id="ppStep1">
+                <div class="pp-step-num">1</div>
+                <div class="pp-step-icon"><i class="fas fa-file-pdf"></i></div>
+                <div class="pp-step-name">Seleção do Arquivo</div>
+                <div class="pp-step-desc">Usuário escolhe PDF do dispositivo ou recebe por compartilhamento</div>
+                <div class="pp-step-badge">File Picker</div>
+              </div>
+              <div class="pp-arrow">→</div>
+              <div class="pp-step" id="ppStep2">
+                <div class="pp-step-num">2</div>
+                <div class="pp-step-icon"><i class="fas fa-search"></i></div>
+                <div class="pp-step-name">Validação GDAL</div>
+                <div class="pp-step-desc">Verifica existência de metadados de georreferência (GCP, World File, embedded)</div>
+                <div class="pp-step-badge">GDAL FFI</div>
+              </div>
+              <div class="pp-arrow">→</div>
+              <div class="pp-step georef-check" id="ppStep3">
+                <div class="pp-step-num">3</div>
+                <div class="pp-step-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <div class="pp-step-name">Extração de Bounds</div>
+                <div class="pp-step-desc">Extrai coordenadas de canto, sistema de referência (EPSG) e resolução</div>
+                <div class="pp-step-badge">WGS84 / UTM</div>
+              </div>
+              <div class="pp-arrow">→</div>
+              <div class="pp-step" id="ppStep4">
+                <div class="pp-step-num">4</div>
+                <div class="pp-step-icon"><i class="fas fa-cubes"></i></div>
+                <div class="pp-step-name">Geração de Tiles</div>
+                <div class="pp-step-desc">Geração de pirâmide de tiles z0–z17 via gdal2tiles. Armazena em MBTiles SQLite</div>
+                <div class="pp-step-badge">MBTiles</div>
+              </div>
+              <div class="pp-arrow">→</div>
+              <div class="pp-step success" id="ppStep5">
+                <div class="pp-step-num">5</div>
+                <div class="pp-step-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="pp-step-name">Disponível Offline</div>
+                <div class="pp-step-desc">Mapa aparece na biblioteca, pode ser ativado como camada e sobreposto com GPS ao vivo</div>
+                <div class="pp-step-badge" style="background:rgba(47,163,124,0.15);color:#2FA37C;">✓ Pronto</div>
+              </div>
+            </div>
+
+            <!-- Non-georeferenced warning -->
+            <div class="georef-warning mt-5">
+              <div class="gw-icon"><i class="fas fa-exclamation-triangle"></i></div>
+              <div class="gw-content">
+                <div class="gw-title">E se o PDF não tiver georreferência?</div>
+                <div class="gw-text">
+                  O app detecta a ausência de metadados geoespaciais e exibe um aviso claro. O arquivo ainda pode ser visualizado como imagem estática, mas <strong>não aparece como camada no mapa</strong> e não tem sobreposição GPS. O usuário pode inserir pontos de controle manualmente (Ground Control Points) para georreferenciar o arquivo.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Supported formats -->
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-5);margin-bottom:var(--space-5);">
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Formatos Suportados</h5>
+            </div>
+            <div class="card-body" style="padding:var(--space-3);">
+              <div class="format-support-list">
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>GeoPDF</strong> <span>PDF com georreferência embedded (OGC GeoPDF)</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>GeoTIFF</strong> <span>Raster georreferenciado padrão da indústria</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>GPX</strong> <span>Trilhas e waypoints GPS Exchange</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>KML / KMZ</strong> <span>Google Earth, overlays e polígonos</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>GeoJSON</strong> <span>Padrão web para features geoespaciais</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>Shapefile (.shp)</strong> <span>ESRI, QGIS, ArcGIS</span></div>
+                </div>
+                <div class="fsl-item supported">
+                  <i class="fas fa-check-circle"></i>
+                  <div><strong>MBTiles</strong> <span>Tiles offline pré-empacotados</span></div>
+                </div>
+                <div class="fsl-item warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  <div><strong>PDF sem georreferência</strong> <span>Visualizável, sem overlay GPS</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Armazenamento de Tiles</h5>
+            </div>
+            <div class="card-body">
+              <div style="margin-bottom:var(--space-4);">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-size:var(--text-sm);font-weight:600;color:var(--color-petroleum);">Espaço usado (exemplo)</span>
+                  <span style="font-size:var(--text-sm);font-family:var(--font-mono);color:var(--color-gray-mid);">1.2 GB / 8 GB</span>
+                </div>
+                <div class="progress-wrap">
+                  <div class="progress-bar" style="width:15%;background:var(--color-accent-green);"></div>
+                </div>
+              </div>
+              <div class="tile-size-table">
+                <div class="tst-header">
+                  <span>Cobertura</span><span>Zoom máx.</span><span>Tamanho aprox.</span>
+                </div>
+                <div class="tst-row"><span>Área 10 km²</span><span class="mono">z17</span><span class="mono green">~80 MB</span></div>
+                <div class="tst-row"><span>Município</span><span class="mono">z15</span><span class="mono orange">~250 MB</span></div>
+                <div class="tst-row"><span>Estado</span><span class="mono">z13</span><span class="mono orange">~800 MB</span></div>
+                <div class="tst-row"><span>País</span><span class="mono">z10</span><span class="mono red">~2.5 GB</span></div>
+              </div>
+              <div style="margin-top:var(--space-3);font-size:var(--text-xs);color:var(--color-gray-mid);">
+                <i class="fas fa-info-circle" style="margin-right:4px;"></i>
+                Tiles são comprimidos com GZIP. Download incremental — só baixa o que falta.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================================================================
+           SECTION: FLUXOS
+           ================================================================ -->
+      <div id="sectionFlow" style="display:none;">
+
+        <div class="section-title-row mb-5">
+          <div>
+            <h3 style="font-size:var(--text-xl);font-weight:800;color:var(--color-petroleum);">Fluxos Principais</h3>
+            <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-top:4px;">Passo a passo dos fluxos de uso mais comuns em campo</p>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-ghost btn-sm active" id="flowBtn1" onclick="showFlow(1)">Importar Mapa</button>
+            <button class="btn btn-ghost btn-sm" id="flowBtn2" onclick="showFlow(2)">Gravar Trilha</button>
+            <button class="btn btn-ghost btn-sm" id="flowBtn3" onclick="showFlow(3)">Waypoint + Foto</button>
+          </div>
+        </div>
+
+        <!-- Flow 1: Importar mapa -->
+        <div id="flow1">
+          <div class="flow-diagram">
+            <div class="fd-title"><i class="fas fa-file-pdf" style="color:#C94B4B;"></i> Fluxo: Importar GeoPDF e usar em campo</div>
+            <div class="fd-steps">
+              <div class="fd-step" data-status="user">
+                <div class="fds-icon user"><i class="fas fa-user"></i></div>
+                <div class="fds-content">
+                  <div class="fds-label">Usuário</div>
+                  <div class="fds-action">Abre o app → Biblioteca → Importar</div>
+                </div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="app">
+                <div class="fds-icon app"><i class="fas fa-mobile-alt"></i></div>
+                <div class="fds-content">
+                  <div class="fds-label">App</div>
+                  <div class="fds-action">Abre File Picker → Usuário seleciona PDF</div>
+                </div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="local">
+                <div class="fds-icon local"><i class="fas fa-cogs"></i></div>
+                <div class="fds-content">
+                  <div class="fds-label">GDAL (local)</div>
+                  <div class="fds-action">Analisa PDF → detecta georreferência → extrai bounds + CRS</div>
+                </div>
+              </div>
+              <div class="fd-connector decision">
+                <div class="fd-diamond">
+                  <span>Georref?</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-3) 0;">
+                <div class="fd-step" data-status="success">
+                  <div class="fds-icon success"><i class="fas fa-check"></i></div>
+                  <div class="fds-content">
+                    <div class="fds-label">Sim ✓</div>
+                    <div class="fds-action">Gera tiles MBTiles → armazena local → adiciona à biblioteca</div>
+                  </div>
+                </div>
+                <div class="fd-step" data-status="warning">
+                  <div class="fds-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                  <div class="fds-content">
+                    <div class="fds-label">Não ⚠️</div>
+                    <div class="fds-action">Exibe aviso → permite GCP manual ou acesso como imagem</div>
+                  </div>
+                </div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="final">
+                <div class="fds-icon final"><i class="fas fa-map"></i></div>
+                <div class="fds-content">
+                  <div class="fds-label">Resultado</div>
+                  <div class="fds-action">Mapa disponível na biblioteca offline → ativar como layer → GPS ao vivo sobreposto</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow 2: Gravar trilha -->
+        <div id="flow2" style="display:none;">
+          <div class="flow-diagram">
+            <div class="fd-title"><i class="fas fa-route" style="color:#E58A2B;"></i> Fluxo: Gravar Trilha e Sincronizar</div>
+            <div class="fd-steps">
+              <div class="fd-step" data-status="user">
+                <div class="fds-icon user"><i class="fas fa-user"></i></div>
+                <div class="fds-content"><div class="fds-label">Usuário</div><div class="fds-action">Abre Gravador de Trilhas → toca "Iniciar"</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="local">
+                <div class="fds-icon local"><i class="fas fa-satellite-dish"></i></div>
+                <div class="fds-content"><div class="fds-label">GPS Service</div><div class="fds-action">Inicia background tracking (1Hz) — funciona offline</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="app">
+                <div class="fds-icon app"><i class="fas fa-database"></i></div>
+                <div class="fds-content"><div class="fds-label">Hive DB (local)</div><div class="fds-action">Cada ponto GPS salvo em tracks_box com timestamp</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="user">
+                <div class="fds-icon user"><i class="fas fa-stop"></i></div>
+                <div class="fds-content"><div class="fds-label">Usuário</div><div class="fds-action">Pausa / retoma / para → nomeia a trilha</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="local">
+                <div class="fds-icon local"><i class="fas fa-file-code"></i></div>
+                <div class="fds-content"><div class="fds-label">App (local)</div><div class="fds-action">Gera GPX local → enfileira na sync_queue_box</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="final">
+                <div class="fds-icon final"><i class="fas fa-cloud-upload-alt"></i></div>
+                <div class="fds-content"><div class="fds-label">Sync Engine</div><div class="fds-action">Quando online → POST /tracks → confirma → remove da fila</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flow 3: Waypoint + Foto -->
+        <div id="flow3" style="display:none;">
+          <div class="flow-diagram">
+            <div class="fd-title"><i class="fas fa-camera" style="color:#163F59;"></i> Fluxo: Waypoint com Foto Georreferenciada</div>
+            <div class="fd-steps">
+              <div class="fd-step" data-status="user">
+                <div class="fds-icon user"><i class="fas fa-map-pin"></i></div>
+                <div class="fds-content"><div class="fds-label">Usuário</div><div class="fds-action">Toca no mapa ou botão "+" → cria waypoint na posição GPS atual</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="local">
+                <div class="fds-icon local"><i class="fas fa-fingerprint"></i></div>
+                <div class="fds-content"><div class="fds-label">App (local)</div><div class="fds-action">Gera UUID local → captura lat/lon/alt do GPS → salva no waypoints_box</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="user">
+                <div class="fds-icon user"><i class="fas fa-camera"></i></div>
+                <div class="fds-content"><div class="fds-label">Usuário</div><div class="fds-action">Toca "Adicionar foto" → câmera nativa → foto capturada</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="app">
+                <div class="fds-icon app"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="fds-content"><div class="fds-label">App (local)</div><div class="fds-action">Injeta EXIF GPS: lat/lon/alt/timestamp → salva no File System local</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="local">
+                <div class="fds-icon local"><i class="fas fa-clipboard-list"></i></div>
+                <div class="fds-content"><div class="fds-label">Coleta de Campo</div><div class="fds-action">Preenche formulário customizado → salva em waypoints_box.form_data</div></div>
+              </div>
+              <div class="fd-connector"></div>
+              <div class="fd-step" data-status="final">
+                <div class="fds-icon final"><i class="fas fa-sync-alt"></i></div>
+                <div class="fds-content"><div class="fds-label">Sync (quando online)</div><div class="fds-action">POST waypoint + multipart upload foto → POST forms → confirma tudo</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ================================================================
+     STYLES
+     ================================================================ -->
+<style>
+/* ── Hero ── */
+.offline-hero {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--space-8);
+  background: var(--gradient-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-8) var(--space-8) var(--space-8) var(--space-8);
+  position: relative;
+  overflow: hidden;
+}
+.offline-hero::before {
+  content:'';
+  position:absolute;
+  right:-60px; top:-60px;
+  width:300px; height:300px;
+  border-radius:50%;
+  background:rgba(47,163,124,0.1);
+  pointer-events:none;
+}
+.offline-hero::after {
+  content:'';
+  position:absolute;
+  left:-40px; bottom:-40px;
+  width:200px; height:200px;
+  border-radius:50%;
+  background:rgba(22,63,89,0.2);
+  pointer-events:none;
+}
+.offline-hero-content { position:relative; z-index:1; }
+.offline-hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(47,163,124,0.2);
+  border:1px solid rgba(47,163,124,0.35);
+  color:#7FDBBD;
+  padding:6px 16px; border-radius:var(--radius-full);
+  font-size:11px; font-weight:700; letter-spacing:0.1em;
+  margin-bottom:var(--space-4);
+}
+.offline-hero-title {
+  font-size:2rem; font-weight:900; color:white; margin-bottom:var(--space-3); line-height:1.2;
+}
+.offline-hero-subtitle {
+  font-size:var(--text-sm); color:rgba(255,255,255,0.75); line-height:1.7;
+  max-width:480px; margin-bottom:var(--space-6);
+}
+.offline-hero-stats { display:flex; gap:var(--space-6); flex-wrap:wrap; }
+.oh-stat { text-align:center; }
+.oh-num {
+  display:block; font-size:1.8rem; font-weight:900; color:#2FA37C;
+  font-family:var(--font-mono); line-height:1;
+}
+.oh-label { font-size:10px; color:rgba(255,255,255,0.6); font-weight:500; margin-top:4px; display:block; }
+
+/* ── Phone Mockup ── */
+.offline-hero-visual { display:flex; justify-content:center; align-items:center; position:relative; z-index:1; }
+.phone-mockup { position:relative; }
+.phone-frame {
+  width: 200px;
+  background: #101820;
+  border-radius: 36px;
+  padding: 16px 10px 12px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+  border: 2px solid rgba(255,255,255,0.08);
+  position: relative;
+}
+.phone-notch {
+  width: 60px; height: 10px;
+  background: #101820;
+  border-radius: 0 0 8px 8px;
+  margin: 0 auto 8px;
+  position:relative; z-index:2;
+}
+.phone-screen {
+  background: var(--color-petroleum);
+  border-radius: 22px;
+  height: 340px;
+  overflow: hidden;
+  position: relative;
+}
+.phone-screen-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.phone-home-bar {
+  width: 60px; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px;
+  margin: 8px auto 0;
+}
+.signal-indicator {
+  position:absolute; top:-20px; right:-10px;
+  display:flex; align-items:flex-end; gap:2px;
+}
+.sig-bar {
+  width:5px; border-radius:1px;
+  background:rgba(47,163,124,0.5);
+  display:block;
+  transition: background 0.3s;
+}
+.sig-bar.active { background:#2FA37C; }
+.sig-bar.inactive { background:rgba(201,75,75,0.5); }
+
+/* ── Phone screen content ── */
+.ps-topbar {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:8px 10px; background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.ps-tb-title { font-size:9px; font-weight:700; color:white; }
+.ps-tb-status { font-size:8px; font-family:var(--font-mono); display:flex; align-items:center; gap:4px; }
+.ps-map {
+  flex:1; position:relative; overflow:hidden;
+  background:linear-gradient(145deg,#163F59,#1A5449,#1F6B5C);
+}
+.ps-map-grid {
+  position:absolute; inset:0;
+  background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.ps-gps-dot {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:12px; height:12px;
+  background:#2FA37C; border-radius:50%;
+  box-shadow:0 0 0 0 rgba(47,163,124,0.6);
+  animation:gpsPulse 2s ease infinite;
+}
+@keyframes gpsPulse {
+  0%   { box-shadow:0 0 0 0 rgba(47,163,124,0.6); }
+  70%  { box-shadow:0 0 0 16px rgba(47,163,124,0); }
+  100% { box-shadow:0 0 0 0 rgba(47,163,124,0); }
+}
+.ps-track {
+  position:absolute; top:20%; left:20%; width:60%; height:50%;
+  border:2px dashed rgba(229,138,43,0.6); border-radius:50% 30% 50% 40%;
+  animation:trackDraw 3s ease forwards;
+}
+.ps-bottombar {
+  padding:6px 10px 4px;
+  background:rgba(0,0,0,0.3);
+  display:flex; justify-content:space-around;
+}
+.ps-bb-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+.ps-bb-icon { font-size:12px; color:rgba(255,255,255,0.5); }
+.ps-bb-label { font-size:6px; color:rgba(255,255,255,0.4); }
+.ps-bb-item.active .ps-bb-icon { color:#2FA37C; }
+.ps-bb-item.active .ps-bb-label { color:#2FA37C; }
+
+/* Offline pill */
+.offline-status-pill {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 16px; border-radius:var(--radius-full);
+  background:rgba(47,163,124,0.1); border:1px solid rgba(47,163,124,0.2);
+  font-size:var(--text-xs); font-weight:600; color:var(--color-map-green);
+  transition:all 0.3s;
+}
+.offline-status-pill.offline {
+  background:rgba(201,75,75,0.1); border-color:rgba(201,75,75,0.2); color:var(--color-error);
+}
+
+/* ── Tech Cards ── */
+.tech-card {
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  box-shadow:var(--shadow-md);
+  transition:transform var(--transition-normal),box-shadow var(--transition-normal);
+}
+.tech-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.tech-card-header {
+  display:flex; align-items:center; gap:var(--space-3);
+  padding:var(--space-4); color:white;
+}
+.tech-card-header i { font-size:20px; }
+.tech-card-header span:first-of-type { font-weight:700; font-size:var(--text-base); flex:1; }
+.tech-version {
+  font-size:10px; background:rgba(255,255,255,0.2);
+  padding:2px 8px; border-radius:var(--radius-full);
+  font-family:var(--font-mono);
+}
+.tech-card-body { padding:var(--space-4); background:white; }
+.tech-card-body p { font-size:var(--text-xs); color:var(--color-gray-dark); line-height:1.65; margin-bottom:var(--space-3); }
+.tech-tags { display:flex; flex-wrap:wrap; gap:5px; }
+.tech-tags span {
+  font-size:9px; font-weight:700; padding:2px 8px;
+  background:var(--color-fog); color:var(--color-gray-dark);
+  border-radius:var(--radius-full);
+}
+
+/* ── Architecture Layers ── */
+.arch-layers { display:flex; flex-direction:column; gap:var(--space-3); }
+.arch-layer {
+  border-left:4px solid var(--layer-color);
+  border-radius:0 var(--radius-lg) var(--radius-lg) 0;
+  background:var(--color-fog);
+  padding:var(--space-3) var(--space-4);
+  transition:transform var(--transition-fast);
+}
+.arch-layer:hover { transform:translateX(3px); }
+.arch-layer-label {
+  display:flex; align-items:center; gap:8px;
+  font-size:var(--text-sm); font-weight:700; color:var(--color-petroleum);
+  margin-bottom:var(--space-3);
+}
+.arch-layer-label i { color:var(--layer-color); font-size:14px; }
+.arch-layer-items { display:flex; flex-wrap:wrap; gap:var(--space-2); margin-bottom:var(--space-2); }
+.arch-item {
+  font-size:11px; font-weight:600; padding:4px 12px;
+  background:white; border-radius:var(--radius-full);
+  color:var(--color-petroleum);
+  box-shadow:var(--shadow-xs);
+  border:1px solid rgba(15,45,58,0.06);
+}
+.arch-layer-desc { font-size:10px; color:var(--color-gray-mid); font-style:italic; }
+
+/* ── Offline Features ── */
+.offline-feature-card {
+  background:white; border-radius:var(--radius-xl);
+  padding:var(--space-4); box-shadow:var(--shadow-sm);
+  border:1px solid rgba(15,45,58,0.06);
+  transition:all var(--transition-normal);
+}
+.offline-feature-card:hover { box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.off-feat-icon {
+  width:44px; height:44px; border-radius:var(--radius-lg);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; margin-bottom:var(--space-3);
+}
+.offline-feature-card h6 {
+  font-size:var(--text-sm); font-weight:700; color:var(--color-petroleum);
+  margin-bottom:var(--space-2);
+}
+.offline-feature-card p {
+  font-size:var(--text-xs); color:var(--color-gray-mid); line-height:1.6;
+  margin-bottom:var(--space-3);
+}
+.off-feat-detail {
+  display:flex; flex-wrap:wrap; gap:5px;
+}
+.off-feat-detail span {
+  font-size:9px; font-weight:600; padding:2px 8px;
+  background:var(--color-fog); color:var(--color-gray-dark); border-radius:var(--radius-full);
+  display:flex; align-items:center; gap:4px;
+}
+.off-feat-detail i { font-size:8px; color:var(--color-accent-green); }
+
+/* ── Offline Timeline Simulator ── */
+.offline-timeline {
+  min-height:160px; padding:var(--space-5);
+  display:flex; align-items:center; justify-content:center;
+}
+.otl-intro {
+  text-align:center; color:var(--color-gray-mid);
+  font-size:var(--text-sm); line-height:1.6;
+}
+.otl-event {
+  display:flex; align-items:flex-start; gap:var(--space-3);
+  padding:var(--space-3) 0;
+  animation:fadeIn 0.4s ease;
+}
+.otl-event-icon {
+  width:34px; height:34px; border-radius:var(--radius-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0;
+}
+.otl-event-content { flex:1; }
+.otl-event-title { font-size:var(--text-sm); font-weight:700; color:var(--color-petroleum); }
+.otl-event-desc  { font-size:var(--text-xs); color:var(--color-gray-mid); margin-top:2px; }
+.otl-event-time  { font-size:10px; color:var(--color-gray-mid); font-family:var(--font-mono); }
+
+/* ── Hive Boxes ── */
+.hive-box { border-radius:var(--radius-lg); overflow:hidden; border:1px solid var(--color-fog); }
+.hive-box-header {
+  display:flex; align-items:center; gap:8px;
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid; font-weight:700;
+}
+.hive-box-header code {
+  font-family:var(--font-mono); font-size:12px;
+  color:var(--color-petroleum);
+}
+.hive-fields { padding:var(--space-2) 0; }
+.hive-field {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:5px var(--space-4);
+  border-bottom:1px solid rgba(15,45,58,0.04);
+  transition:background var(--transition-fast);
+}
+.hive-field:last-child { border-bottom:none; }
+.hive-field:hover { background:var(--color-fog); }
+.hf-key  { font-family:var(--font-mono); font-size:11px; font-weight:600; color:var(--color-petroleum); }
+.hf-type { font-size:10px; color:var(--color-gray-mid); background:var(--color-fog); padding:1px 6px; border-radius:4px; }
+
+/* ── Sync Pipeline ── */
+.sync-pipeline {
+  display:flex; align-items:center; flex-wrap:wrap;
+  gap:0; overflow-x:auto; padding:var(--space-4) 0;
+}
+.sp-stage {
+  display:flex; flex-direction:column; align-items:center; gap:var(--space-2);
+  min-width:90px; transition:transform var(--transition-normal);
+}
+.sp-stage.active { transform:scale(1.1); }
+.sp-icon {
+  width:52px; height:52px; border-radius:var(--radius-lg);
+  background:var(--color-fog); border:2px solid var(--color-fog);
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; color:var(--color-gray-mid);
+  transition:all var(--transition-normal);
+}
+.sp-stage.active .sp-icon {
+  background:var(--gradient-accent); color:white;
+  border-color:var(--color-accent-green);
+  box-shadow:0 0 0 6px rgba(47,163,124,0.15);
+}
+.sp-label { font-size:10px; font-weight:600; text-align:center; color:var(--color-gray-dark); }
+.sp-label small { font-size:9px; color:var(--color-gray-mid); display:block; }
+.sp-arrow {
+  flex:1; min-width:40px;
+  display:flex; flex-direction:column; align-items:center;
+  position:relative; padding:0 4px;
+}
+.sp-arrow-line {
+  height:2px; width:100%;
+  background:var(--color-fog); position:relative;
+  transition:background 0.5s;
+}
+.sp-arrow-line::after {
+  content:'▶'; position:absolute; right:-6px; top:-7px;
+  color:var(--color-fog); font-size:12px;
+  transition:color 0.5s;
+}
+.sp-arrow.active .sp-arrow-line { background:var(--color-accent-green); }
+.sp-arrow.active .sp-arrow-line::after { color:var(--color-accent-green); }
+.sp-arrow-label { font-size:8px; color:var(--color-gray-mid); margin-top:4px; white-space:nowrap; }
+
+/* ── Sync Queue ── */
+.sq-item {
+  display:flex; align-items:center; gap:var(--space-3);
+  padding:var(--space-3) var(--space-4);
+  border-bottom:1px solid var(--color-fog);
+  transition:background var(--transition-fast);
+}
+.sq-item:last-child { border-bottom:none; }
+.sq-item:hover { background:var(--color-fog); }
+.sq-status { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sq-info { flex:1; min-width:0; }
+.sq-name { font-size:var(--text-xs); font-weight:600; color:var(--color-petroleum); }
+.sq-type { font-size:10px; color:var(--color-gray-mid); }
+.sq-badge { font-size:9px; font-weight:700; padding:2px 7px; border-radius:var(--radius-full); }
+
+/* ── Retry Timeline ── */
+.retry-timeline { display:flex; flex-direction:column; gap:0; }
+.rt-event { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) 0; }
+.rt-dot {
+  width:12px; height:12px; border-radius:50%; flex-shrink:0;
+  border:2px solid var(--color-error); background:rgba(201,75,75,0.1);
+}
+.rt-event.success .rt-dot { border-color:var(--color-accent-green); background:rgba(47,163,124,0.1); }
+.rt-title { font-size:var(--text-sm); font-weight:600; color:var(--color-petroleum); }
+.rt-time  { font-size:11px; color:var(--color-gray-mid); font-family:var(--font-mono); }
+.rt-wait {
+  padding:var(--space-2) var(--space-4);
+  border-left:2px dashed var(--color-fog);
+  margin-left:5px;
+  font-size:var(--text-xs); color:var(--color-gray-mid);
+}
+
+/* ── Conflict ── */
+.cs-steps { display:flex; flex-direction:column; gap:var(--space-2); }
+.cs-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--color-gray-mid); margin-bottom:var(--space-2); }
+.cs-step {
+  display:flex; align-items:flex-start; gap:var(--space-3);
+  font-size:var(--text-xs); color:var(--color-gray-dark); line-height:1.5;
+}
+.cs-step-num {
+  width:20px; height:20px; border-radius:50%;
+  background:var(--color-fog); color:var(--color-gray-mid);
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+.cs-step.ok .cs-step-num { background:#2FA37C; }
+.conflict-option {
+  display:flex; align-items:center; gap:8px;
+  font-size:var(--text-xs); padding:6px var(--space-2);
+  cursor:pointer; border-radius:var(--radius-sm);
+  transition:background var(--transition-fast);
+}
+.conflict-option:hover { background:var(--color-fog); }
+.conflict-option.active { color:var(--color-map-green); }
+
+/* ── Modules ── */
+.module-card { border-radius:var(--radius-xl); overflow:hidden; box-shadow:var(--shadow-sm); transition:all var(--transition-normal); }
+.module-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+.module-card-top {
+  display:flex; align-items:center; gap:var(--space-3);
+  padding:var(--space-4); color:white;
+}
+.module-card-top > i { font-size:22px; }
+.module-name  { font-size:var(--text-sm); font-weight:700; }
+.module-status { font-size:10px; opacity:0.8; margin-top:2px; }
+.module-status.online { color:#90EEC9; }
+.module-status.partial { color:#FFD699; }
+.module-card-body { background:white; padding:var(--space-4); }
+.module-feature {
+  display:flex; align-items:center; gap:8px;
+  font-size:var(--text-xs); color:var(--color-gray-dark);
+  padding:5px 0; border-bottom:1px solid var(--color-fog);
+}
+.module-feature:last-child { border-bottom:none; }
+.module-feature i { font-size:11px; color:var(--color-accent-green); flex-shrink:0; }
+.module-feature.offline-only { color:var(--color-map-green); font-weight:600; }
+.module-feature.offline-only i { color:var(--color-map-green); }
+
+/* ── PDF Pipeline ── */
+.pdf-pipeline { display:flex; align-items:flex-start; gap:var(--space-3); flex-wrap:wrap; overflow-x:auto; padding:var(--space-2) 0; }
+.pp-step {
+  display:flex; flex-direction:column; align-items:center;
+  gap:var(--space-2); padding:var(--space-3);
+  border:1.5px solid var(--color-fog); border-radius:var(--radius-lg);
+  background:white; min-width:120px; max-width:140px;
+  text-align:center; transition:all var(--transition-normal);
+  position:relative;
+}
+.pp-step:hover { border-color:rgba(47,163,124,0.3); box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.pp-step.success { border-color:rgba(47,163,124,0.35); background:rgba(47,163,124,0.04); }
+.pp-step-num {
+  position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  width:20px; height:20px; background:var(--gradient-primary);
+  border-radius:50%; font-size:10px; font-weight:700; color:white;
+  display:flex; align-items:center; justify-content:center;
+}
+.pp-step-icon { font-size:22px; color:var(--color-gray-mid); margin-top:8px; }
+.pp-step.success .pp-step-icon { color:var(--color-accent-green); }
+.pp-step-name { font-size:11px; font-weight:700; color:var(--color-petroleum); }
+.pp-step-desc { font-size:9px; color:var(--color-gray-mid); line-height:1.5; }
+.pp-step-badge {
+  font-size:9px; font-weight:700; padding:2px 8px;
+  background:var(--color-fog); color:var(--color-gray-dark);
+  border-radius:var(--radius-full);
+}
+.pp-arrow { font-size:18px; color:var(--color-gray-mid); align-self:center; flex-shrink:0; padding-top:8px; }
+
+.georef-warning {
+  display:flex; gap:var(--space-3); padding:var(--space-4);
+  background:rgba(229,138,43,0.06); border:1px solid rgba(229,138,43,0.2);
+  border-radius:var(--radius-lg);
+}
+.gw-icon { font-size:22px; color:var(--color-alert); flex-shrink:0; }
+.gw-title { font-size:var(--text-sm); font-weight:700; color:var(--color-petroleum); margin-bottom:4px; }
+.gw-text { font-size:var(--text-xs); color:var(--color-gray-dark); line-height:1.6; }
+
+/* ── Format Support ── */
+.format-support-list { display:flex; flex-direction:column; gap:0; }
+.fsl-item {
+  display:flex; align-items:flex-start; gap:var(--space-3);
+  padding:var(--space-2) var(--space-3);
+  border-bottom:1px solid var(--color-fog); font-size:var(--text-xs);
+}
+.fsl-item:last-child { border-bottom:none; }
+.fsl-item.supported i { color:var(--color-accent-green); font-size:12px; flex-shrink:0; margin-top:1px; }
+.fsl-item.warning i { color:var(--color-alert); font-size:12px; flex-shrink:0; margin-top:1px; }
+.fsl-item strong { color:var(--color-petroleum); }
+.fsl-item span { color:var(--color-gray-mid); display:block; margin-top:1px; }
+
+/* ── Tile table ── */
+.tile-size-table { border:1px solid var(--color-fog); border-radius:var(--radius-md); overflow:hidden; font-size:var(--text-xs); }
+.tst-header, .tst-row {
+  display:grid; grid-template-columns:1fr auto auto;
+  gap:var(--space-4); padding:var(--space-2) var(--space-3);
+}
+.tst-header { background:var(--color-fog); font-weight:700; color:var(--color-gray-mid); font-size:10px; text-transform:uppercase; }
+.tst-row { border-top:1px solid var(--color-fog); color:var(--color-gray-dark); }
+.tst-row:hover { background:var(--color-fog); }
+.mono { font-family:var(--font-mono); font-weight:600; }
+.green { color:var(--color-accent-green); }
+.orange { color:var(--color-alert); }
+.red { color:var(--color-error); }
+
+/* ── Flow Diagram ── */
+.flow-diagram {
+  background:white; border-radius:var(--radius-xl);
+  box-shadow:var(--shadow-md); overflow:hidden;
+}
+.fd-title {
+  padding:var(--space-4) var(--space-5); font-size:var(--text-base); font-weight:700;
+  color:var(--color-petroleum); border-bottom:1px solid var(--color-fog);
+  display:flex; align-items:center; gap:var(--space-3);
+}
+.fd-steps { padding:var(--space-5) var(--space-6); display:flex; flex-direction:column; gap:0; }
+.fd-step {
+  display:flex; align-items:flex-start; gap:var(--space-4);
+  padding:var(--space-3) var(--space-4);
+  border-radius:var(--radius-lg); transition:background var(--transition-fast);
+}
+.fd-step:hover { background:var(--color-fog); }
+.fds-icon {
+  width:36px; height:36px; border-radius:var(--radius-md);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; flex-shrink:0;
+}
+.fds-icon.user    { background:rgba(22,63,89,0.1);   color:var(--color-deep-blue); }
+.fds-icon.app     { background:rgba(47,163,124,0.1); color:var(--color-accent-green); }
+.fds-icon.local   { background:rgba(229,138,43,0.1); color:var(--color-alert); }
+.fds-icon.success { background:rgba(47,163,124,0.1); color:var(--color-accent-green); }
+.fds-icon.warning { background:rgba(229,138,43,0.1); color:var(--color-alert); }
+.fds-icon.final   { background:var(--gradient-accent); color:white; }
+.fds-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--color-gray-mid); }
+.fds-action { font-size:var(--text-sm); color:var(--color-petroleum); margin-top:2px; }
+.fd-connector {
+  width:2px; height:28px; background:var(--color-fog);
+  margin:0 auto; border-radius:1px;
+}
+.fd-connector.decision { height:auto; width:auto; display:flex; justify-content:center; padding:var(--space-2) 0; }
+.fd-diamond {
+  width:64px; height:36px; background:var(--gradient-primary);
+  clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);
+  display:flex; align-items:center; justify-content:center;
+}
+.fd-diamond span { font-size:9px; font-weight:700; color:white; }
+
+/* ── Section helper ── */
+.section-title-row {
+  display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:var(--space-4);
+}
+
+/* Responsive */
+@media(max-width:1000px) {
+  .offline-hero { grid-template-columns:1fr; }
+  .offline-hero-visual { display:none; }
+  .sync-pipeline { flex-direction:column; }
+  .sp-arrow { width:2px; height:30px; align-self:center; flex-direction:column; }
+}
+@media(max-width:768px) {
+  .offline-hero { padding:var(--space-5); }
+  .offline-hero-title { font-size:1.5rem; }
+  .pdf-pipeline { flex-direction:column; }
+  .pp-arrow { align-self:center; transform:rotate(90deg); }
+}
+</style>
+
+<script src="js/app.js"></script>
+<script src="js/mobile.js"></script>
+</body>
+</html>

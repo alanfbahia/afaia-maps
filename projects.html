@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — Projetos & Exportação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="app-body">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+        <rect width="36" height="36" rx="9" fill="url(#sLGP)"/>
+        <path d="M18 6C12.5 6 8 10.5 8 16C8 22 18 30 18 30S28 22 28 16C28 10.5 23.5 6 18 6Z" fill="white" fill-opacity="0.9"/>
+        <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+        <defs><linearGradient id="sLGP" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0F2D3A"/><stop offset="100%" stop-color="#1F6B5C"/></linearGradient></defs>
+      </svg>
+      <span class="logo-text">Afaia <span>Maps</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="app.html" class="nav-item"><i class="fas fa-map"></i> Mapa ao Vivo</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Ferramentas</div>
+        <a href="maps.html" class="nav-item"><i class="fas fa-layer-group"></i> Biblioteca de Mapas</a>
+        <a href="tracks.html" class="nav-item"><i class="fas fa-route"></i> Gravação de Trilhas</a>
+        <a href="waypoints.html" class="nav-item"><i class="fas fa-map-pin"></i> Waypoints</a>
+        <a href="projects.html" class="nav-item active"><i class="fas fa-folder-open"></i> Projetos</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Administração</div>
+        <a href="admin.html" class="nav-item"><i class="fas fa-chart-bar"></i> Painel Admin</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar-text" style="width:36px;height:36px;font-size:12px;">JS</div>
+        <div class="user-info">
+          <div class="user-name">João Silva</div>
+          <div class="user-role">Profissional</div>
+        </div>
+        <button class="btn btn-ghost btn-icon" onclick="window.location.href='login.html'" title="Sair" style="margin-left:auto;">
+          <i class="fas fa-sign-out-alt" style="font-size:13px;color:var(--color-gray-mid);"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <div class="topbar-title">Projetos</div>
+          <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">Organize, exporte e compartilhe seus trabalhos de campo</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" onclick="showExportModal()">
+          <i class="fas fa-file-export"></i> Exportar
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="showNewProjectModal()">
+          <i class="fas fa-plus"></i> Novo Projeto
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- TABS -->
+      <div class="admin-tabs-bar mb-6">
+        <button class="admin-tab active" onclick="showTab('projects', this)"><i class="fas fa-folder"></i> Projetos</button>
+        <button class="admin-tab" onclick="showTab('export', this)"><i class="fas fa-file-export"></i> Exportação</button>
+        <button class="admin-tab" onclick="showTab('sharing', this)"><i class="fas fa-share-alt"></i> Compartilhamento</button>
+        <button class="admin-tab" onclick="showTab('reports', this)"><i class="fas fa-chart-line"></i> Relatórios</button>
+      </div>
+
+      <!-- ===== TAB: PROJETOS ===== -->
+      <div id="tabProjects">
+
+        <!-- KPIs -->
+        <div class="grid grid-4 gap-4 mb-6">
+          <div class="stat-card green">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon green"><i class="fas fa-folder"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +2 mês</span>
+            </div>
+            <div class="stat-value">12</div>
+            <div class="stat-label">Projetos ativos</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon blue"><i class="fas fa-layer-group"></i></div>
+            </div>
+            <div class="stat-value">47</div>
+            <div class="stat-label">Mapas vinculados</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon orange"><i class="fas fa-users"></i></div>
+            </div>
+            <div class="stat-value">8</div>
+            <div class="stat-label">Colaboradores</div>
+          </div>
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon teal"><i class="fas fa-clock"></i></div>
+            </div>
+            <div class="stat-value">3</div>
+            <div class="stat-label">Sincronizações pendentes</div>
+          </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="card mb-5" style="padding:var(--space-3) var(--space-5);">
+          <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+            <div class="input-icon-wrap" style="flex:1;min-width:180px;">
+              <i class="fas fa-search icon-left"></i>
+              <input type="text" class="form-input" placeholder="Buscar projeto…" id="projectSearch" oninput="filterProjects()" style="background:var(--color-fog);">
+            </div>
+            <select class="form-select" id="projectStatusFilter" onchange="filterProjects()" style="width:140px;background:var(--color-fog);">
+              <option value="">Todos os status</option>
+              <option value="ativo">Ativos</option>
+              <option value="concluído">Concluídos</option>
+              <option value="pausa">Em pausa</option>
+            </select>
+            <div class="btn-group">
+              <button class="btn btn-ghost btn-sm active" id="viewGrid" onclick="setView('grid')"><i class="fas fa-th"></i></button>
+              <button class="btn btn-ghost btn-sm" id="viewList" onclick="setView('list')"><i class="fas fa-list"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- GRID VIEW -->
+        <div id="projectsGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-4);"></div>
+
+        <!-- LIST VIEW -->
+        <div id="projectsList" class="card" style="display:none;">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Projeto</th><th>Status</th><th>Mapas</th><th>Trilhas</th><th>Equipe</th><th>Atualizado</th><th>Progresso</th><th></th></tr>
+              </thead>
+              <tbody id="projectsListBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: EXPORTAÇÃO ===== -->
+      <div id="tabExport" style="display:none;">
+        <div class="grid" style="grid-template-columns:1.2fr 1fr;gap:var(--space-5);">
+
+          <!-- Export Wizard -->
+          <div>
+            <div class="card mb-5">
+              <div class="card-header">
+                <h5 style="font-weight:700;color:var(--color-petroleum);">
+                  <i class="fas fa-file-export" style="color:var(--color-teal-mid);margin-right:8px;"></i>
+                  Exportar Dados
+                </h5>
+              </div>
+              <div class="card-body">
+
+                <!-- Step 1: Choose project -->
+                <div class="export-step mb-5">
+                  <div class="export-step-label"><span class="step-num">1</span> Selecionar projeto</div>
+                  <select class="form-select" id="exportProject">
+                    <option value="">— Escolha um projeto —</option>
+                    <option>Projeto Cobre — Serra Norte</option>
+                    <option>Mapeamento Geológico 2024</option>
+                    <option>Levantamento Ambiental</option>
+                    <option>Rota de Emergência</option>
+                  </select>
+                </div>
+
+                <!-- Step 2: Select data types -->
+                <div class="export-step mb-5">
+                  <div class="export-step-label"><span class="step-num">2</span> Tipos de dados</div>
+                  <div class="check-grid">
+                    <label class="check-item"><input type="checkbox" checked id="chkTracks"> <i class="fas fa-route"></i> Trilhas</label>
+                    <label class="check-item"><input type="checkbox" checked id="chkWaypoints"> <i class="fas fa-map-pin"></i> Waypoints</label>
+                    <label class="check-item"><input type="checkbox" id="chkAreas"> <i class="fas fa-draw-polygon"></i> Áreas</label>
+                    <label class="check-item"><input type="checkbox" id="chkPhotos"> <i class="fas fa-camera"></i> Fotos</label>
+                    <label class="check-item"><input type="checkbox" id="chkMaps"> <i class="fas fa-layer-group"></i> Mapas</label>
+                    <label class="check-item"><input type="checkbox" id="chkForms"> <i class="fas fa-clipboard-list"></i> Formulários</label>
+                  </div>
+                </div>
+
+                <!-- Step 3: Choose format -->
+                <div class="export-step mb-5">
+                  <div class="export-step-label"><span class="step-num">3</span> Formato de exportação</div>
+                  <div class="format-grid">
+                    <button class="format-btn active" onclick="selectFormat(this, 'gpx')">
+                      <i class="fas fa-route"></i>
+                      <span>GPX</span>
+                      <small>GPS Exchange</small>
+                    </button>
+                    <button class="format-btn" onclick="selectFormat(this, 'kml')">
+                      <i class="fab fa-google"></i>
+                      <span>KML</span>
+                      <small>Google Earth</small>
+                    </button>
+                    <button class="format-btn" onclick="selectFormat(this, 'geojson')">
+                      <i class="fas fa-code"></i>
+                      <span>GeoJSON</span>
+                      <small>Web & GIS</small>
+                    </button>
+                    <button class="format-btn" onclick="selectFormat(this, 'csv')">
+                      <i class="fas fa-table"></i>
+                      <span>CSV</span>
+                      <small>Planilhas</small>
+                    </button>
+                    <button class="format-btn" onclick="selectFormat(this, 'shapefile')">
+                      <i class="fas fa-vector-square"></i>
+                      <span>Shapefile</span>
+                      <small>ESRI / QGIS</small>
+                    </button>
+                    <button class="format-btn" onclick="selectFormat(this, 'pdf')">
+                      <i class="fas fa-file-pdf"></i>
+                      <span>PDF</span>
+                      <small>Relatório</small>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Step 4: Options -->
+                <div class="export-step mb-6">
+                  <div class="export-step-label"><span class="step-num">4</span> Opções adicionais</div>
+                  <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+                    <label class="toggle-row">
+                      <span>Incluir coordenadas de fotos</span>
+                      <input type="checkbox" class="toggle" checked>
+                    </label>
+                    <label class="toggle-row">
+                      <span>Comprimir em .ZIP</span>
+                      <input type="checkbox" class="toggle">
+                    </label>
+                    <label class="toggle-row">
+                      <span>Incluir metadados de campo</span>
+                      <input type="checkbox" class="toggle" checked>
+                    </label>
+                    <label class="toggle-row">
+                      <span>Simplificar geometrias</span>
+                      <input type="checkbox" class="toggle">
+                    </label>
+                  </div>
+                </div>
+
+                <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;" onclick="runExport()">
+                  <i class="fas fa-download"></i> Gerar Exportação
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export History -->
+          <div>
+            <div class="card mb-5">
+              <div class="card-header">
+                <h5 style="font-weight:700;color:var(--color-petroleum);">Histórico de Exportações</h5>
+              </div>
+              <div id="exportHistory" style="padding:0;">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <!-- Quota Card -->
+            <div class="card" style="background:var(--gradient-primary);color:white;">
+              <div class="card-body">
+                <div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-4);">
+                  <div style="width:44px;height:44px;background:rgba(255,255,255,0.15);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;">
+                    <i class="fas fa-cloud-upload-alt" style="font-size:18px;color:white;"></i>
+                  </div>
+                  <div>
+                    <div style="font-weight:700;font-size:var(--text-base);">Plano Profissional</div>
+                    <div style="font-size:var(--text-xs);opacity:0.75;">Exportações ilimitadas</div>
+                  </div>
+                </div>
+                <div style="font-size:var(--text-xs);opacity:0.8;margin-bottom:8px;">Armazenamento utilizado</div>
+                <div style="background:rgba(255,255,255,0.2);border-radius:99px;height:8px;margin-bottom:8px;">
+                  <div style="width:34%;height:100%;background:white;border-radius:99px;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:var(--text-xs);font-family:var(--font-mono);opacity:0.8;">
+                  <span>3.4 GB usados</span>
+                  <span>10 GB disponível</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: COMPARTILHAMENTO ===== -->
+      <div id="tabSharing" style="display:none;">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-5);">
+
+          <!-- Active Shares -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Links compartilhados ativos</h5>
+              <button class="btn btn-primary btn-sm" onclick="showShareModal()">
+                <i class="fas fa-plus"></i> Novo link
+              </button>
+            </div>
+            <div id="activeShares" style="padding:0;">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Shared With Me -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Compartilhado comigo</h5>
+            </div>
+            <div id="sharedWithMe" style="padding:0;">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sharing Settings -->
+        <div class="card mt-5">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Configurações de compartilhamento</h5>
+          </div>
+          <div class="card-body">
+            <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:var(--space-5);">
+              <div>
+                <label class="form-label">Permissão padrão</label>
+                <select class="form-select">
+                  <option>Somente leitura</option>
+                  <option>Leitura e comentário</option>
+                  <option>Edição completa</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Expiração de links</label>
+                <select class="form-select">
+                  <option>7 dias</option>
+                  <option>30 dias</option>
+                  <option>90 dias</option>
+                  <option>Sem expiração</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label">Proteção por senha</label>
+                <div style="display:flex;gap:var(--space-2);">
+                  <input type="text" class="form-input" placeholder="Senha opcional…">
+                  <button class="btn btn-ghost btn-sm"><i class="fas fa-key"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TAB: RELATÓRIOS ===== -->
+      <div id="tabReports" style="display:none;">
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-5);margin-bottom:var(--space-5);">
+
+          <!-- Activity by Project Chart -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Atividade por Projeto</h5>
+              <select class="form-select" style="width:120px;font-size:var(--text-xs);padding:4px 8px;">
+                <option>Último mês</option>
+                <option>3 meses</option>
+                <option>6 meses</option>
+              </select>
+            </div>
+            <div class="card-body" style="height:260px;position:relative;">
+              <canvas id="projectActivityChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Data Coverage -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Cobertura por Tipo de Dado</h5>
+            </div>
+            <div class="card-body" style="height:260px;position:relative;display:flex;align-items:center;justify-content:center;">
+              <canvas id="dataTypeChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field Stats -->
+        <div class="grid grid-4 gap-4 mb-5">
+          <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-map-marked-alt"></i></div>
+            <div class="stat-value">234 km</div>
+            <div class="stat-label">Distância total em campo</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+            <div class="stat-value">187 h</div>
+            <div class="stat-label">Horas de rastreamento</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-camera"></i></div>
+            <div class="stat-value">1.243</div>
+            <div class="stat-label">Fotos georreferenciadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon teal"><i class="fas fa-clipboard-check"></i></div>
+            <div class="stat-value">89</div>
+            <div class="stat-label">Formulários preenchidos</div>
+          </div>
+        </div>
+
+        <!-- Project Progress Table -->
+        <div class="card">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Progresso dos Projetos</h5>
+            <button class="btn btn-ghost btn-sm" onclick="showToast('info','Relatório PDF','Gerando relatório completo...')">
+              <i class="fas fa-file-pdf"></i> Gerar PDF
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Projeto</th><th>Início</th><th>Término previsto</th><th>Coletas</th><th>Km em campo</th><th>Progresso</th><th>Status</th></tr>
+              </thead>
+              <tbody id="projectProgressBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- ===== MODAL: NOVO PROJETO ===== -->
+<div id="newProjectModal" class="modal-overlay" style="display:none;" onclick="closeModalOutside(event,'newProjectModal')">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <h4><i class="fas fa-folder-plus" style="color:var(--color-teal-mid);margin-right:8px;"></i> Novo Projeto</h4>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('newProjectModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome do projeto *</label>
+        <input type="text" class="form-input" placeholder="Ex: Mapeamento Geológico Q1/2025" id="newProjName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descrição</label>
+        <textarea class="form-input" rows="3" placeholder="Descreva o objetivo deste projeto..." style="resize:none;"></textarea>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Tipo de projeto</label>
+          <select class="form-select" id="newProjType">
+            <option>Geológico</option>
+            <option>Topográfico</option>
+            <option>Ambiental</option>
+            <option>Mineração</option>
+            <option>Emergência</option>
+            <option>Expedição</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Visibilidade</label>
+          <select class="form-select">
+            <option>Privado</option>
+            <option>Equipe</option>
+            <option>Público</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div class="form-group">
+          <label class="form-label">Data de início</label>
+          <input type="date" class="form-input" id="newProjStart">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Término previsto</label>
+          <input type="date" class="form-input" id="newProjEnd">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Convidar colaboradores</label>
+        <div class="input-icon-wrap">
+          <i class="fas fa-user-plus icon-left"></i>
+          <input type="text" class="form-input" placeholder="E-mail dos colaboradores...">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('newProjectModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="createProject()">
+        <i class="fas fa-folder-plus"></i> Criar Projeto
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: EXPORTAR ===== -->
+<div id="exportModal" class="modal-overlay" style="display:none;" onclick="closeModalOutside(event,'exportModal')">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h4><i class="fas fa-file-export" style="color:var(--color-teal-mid);margin-right:8px;"></i> Exportação Rápida</h4>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('exportModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <p style="color:var(--color-gray-mid);font-size:var(--text-sm);margin-bottom:var(--space-4);">
+        Selecione o projeto e o formato para exportar rapidamente todos os dados.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Projeto</label>
+        <select class="form-select">
+          <option>Projeto Cobre — Serra Norte</option>
+          <option>Mapeamento Geológico 2024</option>
+          <option>Levantamento Ambiental</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Formato</label>
+        <div class="format-grid" style="grid-template-columns:repeat(3,1fr);">
+          <button class="format-btn active" onclick="selectFormat(this,'gpx')">
+            <i class="fas fa-route"></i><span>GPX</span>
+          </button>
+          <button class="format-btn" onclick="selectFormat(this,'kml')">
+            <i class="fab fa-google"></i><span>KML</span>
+          </button>
+          <button class="format-btn" onclick="selectFormat(this,'geojson')">
+            <i class="fas fa-code"></i><span>GeoJSON</span>
+          </button>
+          <button class="format-btn" onclick="selectFormat(this,'csv')">
+            <i class="fas fa-table"></i><span>CSV</span>
+          </button>
+          <button class="format-btn" onclick="selectFormat(this,'shapefile')">
+            <i class="fas fa-vector-square"></i><span>Shapefile</span>
+          </button>
+          <button class="format-btn" onclick="selectFormat(this,'pdf')">
+            <i class="fas fa-file-pdf"></i><span>PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('exportModal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="runExport(); closeModal('exportModal')">
+        <i class="fas fa-download"></i> Exportar Agora
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: DETAIL PROJETO ===== -->
+<div id="projectDetailModal" class="modal-overlay" style="display:none;" onclick="closeModalOutside(event,'projectDetailModal')">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header" id="projDetailHeader">
+      <h4><i class="fas fa-folder-open" style="color:var(--color-teal-mid);margin-right:8px;"></i> Detalhes do Projeto</h4>
+      <button class="btn btn-ghost btn-icon" onclick="closeModal('projectDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="projDetailBody">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('projectDetailModal')">Fechar</button>
+      <button class="btn btn-ghost" onclick="showToast('info','Compartilhar','Abrindo opções de compartilhamento...')">
+        <i class="fas fa-share-alt"></i> Compartilhar
+      </button>
+      <button class="btn btn-primary" onclick="showToast('success','Abrir no mapa','Carregando projeto no mapa...')">
+        <i class="fas fa-map"></i> Abrir no Mapa
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STYLES ===== -->
+<style>
+.admin-tabs-bar { display:flex;gap:var(--space-2);background:white;padding:6px;border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);flex-wrap:wrap; }
+.admin-tab { display:flex;align-items:center;gap:var(--space-2);padding:8px 20px;border-radius:var(--radius-lg);font-size:var(--text-sm);font-weight:600;color:var(--color-gray-dark);cursor:pointer;transition:all var(--transition-fast);border:none;background:none; }
+.admin-tab:hover { background:var(--color-fog);color:var(--color-petroleum); }
+.admin-tab.active { background:var(--gradient-primary);color:white; }
+.admin-tab i { font-size:13px; }
+
+/* Project Cards */
+.project-card { background:white;border-radius:var(--radius-xl);box-shadow:var(--shadow-card);transition:all var(--transition-normal);cursor:pointer;overflow:hidden;border:1px solid var(--color-fog); }
+.project-card:hover { box-shadow:var(--shadow-hover);transform:translateY(-2px); }
+.project-card-header { padding:var(--space-4) var(--space-4) 0; }
+.project-card-body { padding:var(--space-3) var(--space-4); }
+.project-card-footer { padding:var(--space-3) var(--space-4);border-top:1px solid var(--color-fog);display:flex;gap:var(--space-2);align-items:center; }
+
+.project-type-badge { display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:10px;font-weight:600;margin-bottom:var(--space-2); }
+.project-title { font-size:var(--text-base);font-weight:700;color:var(--color-petroleum);margin-bottom:6px; }
+.project-desc { font-size:var(--text-xs);color:var(--color-gray-mid);line-height:1.5;margin-bottom:var(--space-3); }
+
+.project-stats { display:flex;gap:var(--space-4); }
+.project-stat { display:flex;align-items:center;gap:5px;font-size:10px;color:var(--color-gray-mid); }
+.project-stat i { font-size:10px;color:var(--color-teal-mid); }
+.project-stat strong { font-family:var(--font-mono);color:var(--color-petroleum); }
+
+.progress-mini { height:4px;background:var(--color-fog);border-radius:99px;overflow:hidden;margin:var(--space-2) 0; }
+.progress-mini-bar { height:100%;border-radius:99px;transition:width 0.6s ease; }
+
+.proj-members { display:flex;gap:-4px; }
+.member-avatar { width:24px;height:24px;border-radius:50%;border:2px solid white;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:white;margin-left:-6px; }
+.member-avatar:first-child { margin-left:0; }
+
+/* Export wizard */
+.export-step { }
+.export-step-label { font-size:var(--text-sm);font-weight:700;color:var(--color-petroleum);margin-bottom:var(--space-3);display:flex;align-items:center;gap:var(--space-2); }
+.step-num { width:22px;height:22px;background:var(--gradient-primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:700; }
+
+.check-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2); }
+.check-item { display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--color-fog);border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--transition-fast);color:var(--color-gray-dark); }
+.check-item:hover { border-color:var(--color-teal-mid);color:var(--color-teal-mid); }
+.check-item input { accent-color:var(--color-teal-mid); }
+.check-item i { color:var(--color-teal-mid);font-size:12px; }
+
+.format-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-2); }
+.format-btn { display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 8px;border:2px solid var(--color-fog);border-radius:var(--radius-lg);cursor:pointer;transition:all var(--transition-fast);background:white;color:var(--color-gray-dark); }
+.format-btn i { font-size:20px;color:var(--color-gray-mid); }
+.format-btn span { font-size:var(--text-xs);font-weight:700; }
+.format-btn small { font-size:9px;color:var(--color-gray-mid); }
+.format-btn:hover { border-color:var(--color-teal-mid);color:var(--color-teal-mid); }
+.format-btn:hover i { color:var(--color-teal-mid); }
+.format-btn.active { border-color:var(--color-teal-mid);background:rgba(47,163,124,0.06);color:var(--color-teal-mid); }
+.format-btn.active i { color:var(--color-teal-mid); }
+
+.toggle-row { display:flex;align-items:center;justify-content:space-between;padding:10px var(--space-3);background:var(--color-fog);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-sm);color:var(--color-gray-dark); }
+.toggle-row input.toggle { width:36px;height:18px;cursor:pointer;accent-color:var(--color-teal-mid); }
+
+/* Export history item */
+.export-hist-item { display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-fog);transition:background var(--transition-fast); }
+.export-hist-item:last-child { border-bottom:none; }
+.export-hist-item:hover { background:var(--color-fog); }
+
+/* Share items */
+.share-item { display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-fog); }
+.share-item:last-child { border-bottom:none; }
+
+/* Detail tabs — removido: movido para admin.css */
+</style>
+
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/projects.js"></script>
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — Trilhas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="app-body">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+        <rect width="36" height="36" rx="9" fill="url(#sLG3)"/>
+        <path d="M18 6C12.5 6 8 10.5 8 16C8 22 18 30 18 30S28 22 28 16C28 10.5 23.5 6 18 6Z" fill="white" fill-opacity="0.9"/>
+        <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+        <defs><linearGradient id="sLG3" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0F2D3A"/><stop offset="100%" stop-color="#1F6B5C"/></linearGradient></defs>
+      </svg>
+      <span class="logo-text">Afaia <span>Maps</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="app.html" class="nav-item"><i class="fas fa-map"></i> Mapa</a>
+        <a href="maps.html" class="nav-item"><i class="fas fa-layer-group"></i> Biblioteca de Mapas</a>
+        <a href="tracks.html" class="nav-item active"><i class="fas fa-route"></i> Trilhas</a>
+        <a href="waypoints.html" class="nav-item"><i class="fas fa-map-pin"></i> Waypoints</a>
+        <a href="projects.html" class="nav-item"><i class="fas fa-folder"></i> Projetos</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Coleta</div>
+        <a href="photos.html" class="nav-item"><i class="fas fa-camera"></i> Fotos</a>
+        <a href="export.html" class="nav-item"><i class="fas fa-file-export"></i> Exportar</a>
+        <a href="sync.html" class="nav-item"><i class="fas fa-sync-alt"></i> Sincronização <span class="sync-badge">3</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Administração</div>
+        <a href="admin.html" class="nav-item"><i class="fas fa-desktop"></i> Painel Web</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar" style="background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;">JS</div>
+        <div class="user-info"><div class="user-name">João Silva</div><div class="user-role">Geólogo · Plano Pro</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <div class="topbar-title">Trilhas</div>
+          <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">24 trilhas · 187.4 km total</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="app.html" class="btn btn-primary btn-sm">
+          <i class="fas fa-play-circle"></i> Gravar nova trilha
+        </a>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Trilhas</span>
+      </div>
+
+      <!-- STATS -->
+      <div class="grid grid-4 gap-4 mb-6">
+        <div class="stat-card green">
+          <div class="stat-icon green"><i class="fas fa-route"></i></div>
+          <div class="stat-value">24</div>
+          <div class="stat-label">Trilhas gravadas</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon blue"><i class="fas fa-road"></i></div>
+          <div class="stat-value">187.4</div>
+          <div class="stat-label">km percorridos</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon orange"><i class="fas fa-clock"></i></div>
+          <div class="stat-value">48h</div>
+          <div class="stat-label">Tempo em campo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal"><i class="fas fa-mountain"></i></div>
+          <div class="stat-value">12.4k</div>
+          <div class="stat-label">m ganho de altitude</div>
+        </div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="card mb-5" style="padding:var(--space-4) var(--space-5);">
+        <div style="display:flex;gap:var(--space-4);align-items:center;flex-wrap:wrap;">
+          <div class="input-icon-wrap" style="flex:1;min-width:200px;">
+            <i class="fas fa-search icon-left"></i>
+            <input type="text" class="form-input" id="trackSearch" placeholder="Buscar trilha…" oninput="filterTracks()" style="background:var(--color-fog);">
+          </div>
+          <select class="form-select" id="trackProjectFilter" onchange="filterTracks()" style="width:160px;background:var(--color-fog);">
+            <option value="">Todos os projetos</option>
+            <option value="Projeto Cobre">Projeto Cobre</option>
+            <option value="Serra Norte">Serra Norte</option>
+          </select>
+          <select class="form-select" id="trackSyncFilter" onchange="filterTracks()" style="width:140px;background:var(--color-fog);">
+            <option value="">Todos</option>
+            <option value="synced">Sincronizados</option>
+            <option value="pending">Pendentes</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TRACKS CONTENT -->
+      <div class="grid" style="grid-template-columns:1fr 360px;gap:var(--space-5);">
+
+        <!-- TRACK LIST -->
+        <div id="trackListContainer">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- DETAIL PANEL -->
+        <div id="trackDetailPanel" style="display:none;">
+          <div class="card" style="position:sticky;top:80px;">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);" id="detailName">—</h5>
+              <button class="btn btn-ghost btn-icon-sm" onclick="closeDetail()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="card-body">
+
+              <!-- Mini map preview -->
+              <div style="height:160px;background:var(--gradient-map);border-radius:var(--radius-lg);margin-bottom:var(--space-4);overflow:hidden;position:relative;">
+                <canvas id="miniMapCanvas" width="320" height="160"></canvas>
+              </div>
+
+              <!-- Stats grid -->
+              <div class="grid grid-2 gap-3 mb-4" id="detailStats">
+                <!-- Rendered by JS -->
+              </div>
+
+              <!-- Elevation chart -->
+              <div style="margin-bottom:var(--space-4);">
+                <div style="font-size:var(--text-xs);font-weight:700;color:var(--color-gray-mid);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--space-2);">Perfil Altimétrico</div>
+                <div style="height:80px;position:relative;">
+                  <canvas id="elevationChart"></canvas>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:var(--space-2);">
+                <button class="btn btn-primary btn-sm" style="flex:1;" onclick="viewOnMap()">
+                  <i class="fas fa-map"></i> Ver no mapa
+                </button>
+                <button class="btn btn-outline btn-sm" onclick="window.location.href='export.html'">
+                  <i class="fas fa-file-export"></i> Exportar
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="deleteTrack(currentTrackId)">
+                  <i class="fas fa-trash" style="color:var(--color-error);"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.grid -->
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<style>
+.track-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-3);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+.track-card:hover { box-shadow: var(--shadow-md); transform: translateX(4px); }
+.track-card.selected { border-color: var(--color-accent-green); }
+
+.track-card-inner {
+  display: flex;
+  align-items: stretch;
+}
+
+.track-card-color-bar {
+  width: 5px;
+  background: var(--gradient-accent);
+  flex-shrink: 0;
+}
+
+.track-card-color-bar.pending { background: linear-gradient(180deg, #E58A2B, #F5A623); }
+
+.track-card-body {
+  padding: var(--space-4) var(--space-5);
+  flex: 1;
+  min-width: 0;
+}
+
+.track-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+  gap: var(--space-3);
+}
+
+.track-card-name {
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--color-petroleum);
+}
+
+.track-card-meta {
+  font-size: var(--text-xs);
+  color: var(--color-gray-mid);
+  margin-top: 3px;
+}
+
+.track-card-stats {
+  display: flex;
+  gap: var(--space-5);
+}
+
+.tc-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tc-stat-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-petroleum);
+}
+
+.tc-stat-lbl {
+  font-size: 10px;
+  color: var(--color-gray-mid);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-stat {
+  background: var(--color-fog);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.detail-stat-val {
+  font-family: var(--font-mono);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-petroleum);
+}
+
+.detail-stat-lbl {
+  font-size: 10px;
+  color: var(--color-gray-mid);
+  margin-top: 2px;
+}
+</style>
+
+<script src="js/app.js"></script>
+<script>
+const tracksData = [
+  { id:1,  name:'Trilha Encosta Sul',        date:'08/03/2026', time:'07:30', dist:8.4,  duration:'2h 34min', altGain:312, altMax:1240, speed:3.3,  project:'Serra Norte',   synced:true,  waypoints:5 },
+  { id:2,  name:'Inspeção Perímetro A',       date:'07/03/2026', time:'09:15', dist:3.2,  duration:'0h 48min', altGain:80,  altMax:890,  speed:4.0,  project:'Projeto Cobre', synced:true,  waypoints:12 },
+  { id:3,  name:'Reconhecimento Norte',       date:'06/03/2026', time:'06:00', dist:12.1, duration:'4h 12min', altGain:645, altMax:1540, speed:2.9,  project:'Serra Norte',   synced:false, waypoints:8 },
+  { id:4,  name:'Rota Emergência B3',         date:'05/03/2026', time:'14:20', dist:1.8,  duration:'0h 22min', altGain:45,  altMax:780,  speed:4.9,  project:'Projeto Cobre', synced:true,  waypoints:3 },
+  { id:5,  name:'Levantamento Drenagem',      date:'04/03/2026', time:'08:00', dist:9.7,  duration:'3h 05min', altGain:290, altMax:1080, speed:3.1,  project:'Serra Norte',   synced:true,  waypoints:19 },
+  { id:6,  name:'Acesso Mina Cobre',          date:'03/03/2026', time:'10:40', dist:5.3,  duration:'1h 22min', altGain:195, altMax:950,  speed:3.9,  project:'Projeto Cobre', synced:true,  waypoints:7 },
+  { id:7,  name:'Varredura Setor F',          date:'02/03/2026', time:'07:15', dist:14.2, duration:'5h 30min', altGain:820, altMax:1760, speed:2.6,  project:'Serra Norte',   synced:false, waypoints:24 },
+];
+
+let filteredTracks = [...tracksData];
+let currentTrackId = null;
+let elevChart = null;
+
+function renderTracks() {
+  const container = document.getElementById('trackListContainer');
+  if (!container) return;
+
+  if (filteredTracks.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon"><i class="fas fa-route"></i></div><div class="empty-title">Nenhuma trilha encontrada</div><div class="empty-desc">Grave uma nova trilha no mapa ou ajuste os filtros.</div><a href="app.html" class="btn btn-primary btn-sm"><i class="fas fa-play-circle"></i> Gravar trilha</a></div>`;
+    return;
+  }
+
+  container.innerHTML = filteredTracks.map(t => `
+    <div class="track-card ${currentTrackId === t.id ? 'selected' : ''}" id="track-${t.id}" onclick="selectTrack(${t.id})">
+      <div class="track-card-inner">
+        <div class="track-card-color-bar ${t.synced ? '' : 'pending'}"></div>
+        <div class="track-card-body">
+          <div class="track-card-header">
+            <div>
+              <div class="track-card-name">${t.name}</div>
+              <div class="track-card-meta">
+                <i class="fas fa-calendar" style="margin-right:4px;"></i>${t.date} · ${t.time}
+                &nbsp;·&nbsp;
+                <i class="fas fa-folder" style="margin-right:4px;"></i>${t.project}
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+              ${t.synced ? '<span class="badge badge-green" style="font-size:9px;"><i class="fas fa-check"></i> sync</span>' : '<span class="badge badge-orange" style="font-size:9px;"><i class="fas fa-clock"></i> pendente</span>'}
+              <button class="btn btn-ghost btn-icon-sm" onclick="event.stopPropagation();exportTrack(${t.id})" title="Exportar">
+                <i class="fas fa-file-export" style="font-size:11px;color:var(--color-gray-mid);"></i>
+              </button>
+              <button class="btn btn-ghost btn-icon-sm" onclick="event.stopPropagation();deleteTrack(${t.id})" title="Excluir">
+                <i class="fas fa-trash" style="font-size:11px;color:var(--color-error);"></i>
+              </button>
+            </div>
+          </div>
+          <div class="track-card-stats">
+            <div class="tc-stat">
+              <span class="tc-stat-val">${t.dist.toFixed(1)}</span>
+              <span class="tc-stat-lbl">km</span>
+            </div>
+            <div class="tc-stat">
+              <span class="tc-stat-val">${t.duration}</span>
+              <span class="tc-stat-lbl">duração</span>
+            </div>
+            <div class="tc-stat">
+              <span class="tc-stat-val">+${t.altGain}</span>
+              <span class="tc-stat-lbl">m alt.</span>
+            </div>
+            <div class="tc-stat">
+              <span class="tc-stat-val">${t.waypoints}</span>
+              <span class="tc-stat-lbl">pontos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectTrack(id) {
+  currentTrackId = id;
+  const t = tracksData.find(x => x.id === id);
+  if (!t) return;
+
+  // Update cards
+  document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('track-' + id)?.classList.add('selected');
+
+  // Show detail panel
+  const panel = document.getElementById('trackDetailPanel');
+  panel.style.display = 'block';
+
+  document.getElementById('detailName').textContent = t.name;
+
+  // Stats
+  document.getElementById('detailStats').innerHTML = [
+    ['fas fa-road', t.dist.toFixed(1)+' km', 'Distância'],
+    ['fas fa-clock', t.duration, 'Duração'],
+    ['fas fa-mountain', '+'+t.altGain+'m', 'Ganho alt.'],
+    ['fas fa-tachometer-alt', t.speed+' km/h', 'Velocidade'],
+    ['fas fa-arrow-up', t.altMax+'m', 'Alt. máx.'],
+    ['fas fa-map-pin', t.waypoints+' pts', 'Waypoints'],
+  ].map(([icon, val, lbl]) => `
+    <div class="detail-stat">
+      <div style="font-size:13px;color:var(--color-accent-green);margin-bottom:4px;"><i class="${icon}"></i></div>
+      <div class="detail-stat-val">${val}</div>
+      <div class="detail-stat-lbl">${lbl}</div>
+    </div>
+  `).join('');
+
+  // Draw mini map
+  drawMiniMap();
+  // Draw elevation profile
+  drawElevationChart(t);
+}
+
+function closeDetail() {
+  currentTrackId = null;
+  document.getElementById('trackDetailPanel').style.display = 'none';
+  document.querySelectorAll('.track-card').forEach(c => c.classList.remove('selected'));
+}
+
+function drawMiniMap() {
+  const canvas = document.getElementById('miniMapCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // BG
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+  grad.addColorStop(0, '#1c3d1c');
+  grad.addColorStop(1, '#1a2e1a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid
+  ctx.strokeStyle = 'rgba(47,163,124,0.1)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 20) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 20) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // Contours
+  ctx.strokeStyle = 'rgba(100,160,100,0.4)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, H*0.3 + i*15);
+    ctx.bezierCurveTo(W*0.3, H*0.2+i*10, W*0.6, H*0.4+i*12, W, H*0.25+i*8);
+    ctx.stroke();
+  }
+
+  // Track path
+  const pts = [[0.1,0.8],[0.2,0.7],[0.3,0.6],[0.4,0.5],[0.5,0.4],[0.6,0.38],[0.7,0.3],[0.85,0.25]];
+  ctx.beginPath();
+  ctx.strokeStyle = '#E58A2B';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.setLineDash([6, 3]);
+  ctx.moveTo(pts[0][0]*W, pts[0][1]*H);
+  pts.forEach(p => ctx.lineTo(p[0]*W, p[1]*H));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Start / end
+  const s = pts[0], e = pts[pts.length-1];
+  ctx.beginPath(); ctx.arc(s[0]*W, s[1]*H, 5, 0, Math.PI*2); ctx.fillStyle='#2FA37C'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(e[0]*W, e[1]*H, 5, 0, Math.PI*2); ctx.fillStyle='#C94B4B'; ctx.fill(); ctx.strokeStyle='white'; ctx.lineWidth=2; ctx.stroke();
+}
+
+function drawElevationChart(track) {
+  const canvas = document.getElementById('elevationChart');
+  if (!canvas) return;
+
+  // Generate fake elevation data
+  const points = 20;
+  const elevData = Array.from({length:points}, (_,i) => {
+    return 700 + Math.sin(i/3)*100 + Math.random()*50 + (i/points)*track.altGain;
+  });
+
+  if (elevChart) elevChart.destroy();
+  elevChart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: elevData.map((_,i) => (i * track.dist / points).toFixed(1) + 'km'),
+      datasets: [{
+        data: elevData,
+        borderColor: '#2FA37C',
+        borderWidth: 2,
+        fill: true,
+        backgroundColor: 'rgba(47,163,124,0.15)',
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(0)+'m' } } },
+      scales: {
+        x: { display: false },
+        y: { display: true, grid: { color: 'rgba(167,176,183,0.1)' }, border: { display: false }, ticks: { color: '#A7B0B7', font: { size: 9 }, maxTicksLimit: 4, callback: v => v+'m' } }
+      }
+    }
+  });
+}
+
+function filterTracks() {
+  const q    = document.getElementById('trackSearch')?.value.toLowerCase() || '';
+  const proj = document.getElementById('trackProjectFilter')?.value || '';
+  const sync = document.getElementById('trackSyncFilter')?.value || '';
+
+  filteredTracks = tracksData.filter(t =>
+    (!q    || t.name.toLowerCase().includes(q)) &&
+    (!proj || t.project === proj) &&
+    (!sync || (sync === 'synced' ? t.synced : !t.synced))
+  );
+  renderTracks();
+}
+
+function deleteTrack(id) {
+  const idx = tracksData.findIndex(t => t.id === id);
+  if (idx > -1) {
+    const name = tracksData[idx].name;
+    tracksData.splice(idx, 1);
+    if (currentTrackId === id) closeDetail();
+    filterTracks();
+    showToast('success', 'Trilha removida', `"${name}" foi removida.`);
+  }
+}
+
+function exportTrack(id) {
+  const t = tracksData.find(x => x.id === id);
+  if (t) showToast('info', 'Exportando trilha', `"${t.name}" — selecione o formato em Exportar.`);
+  setTimeout(() => window.location.href = 'export.html', 1000);
+}
+
+function viewOnMap() { window.location.href = 'app.html'; }
+
+renderTracks();
+</script>
+</body>
+</html>

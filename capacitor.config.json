@@ -1,0 +1,117 @@
+{
+  "appId": "com.afaiamaps.app",
+  "appName": "Afaia Maps",
+  "webDir": "frontend",
+  "bundledWebRuntime": false,
+
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "afaiamaps",
+    "allowNavigation": [
+      "*.openstreetmap.org",
+      "*.tile.openstreetmap.org",
+      "*.arcgisonline.com",
+      "*.opentopomap.org",
+      "*.stadiamaps.com",
+      "*.neon.tech"
+    ],
+    "cleartext": false,
+    "hostname": "app.afaiamaps.com"
+  },
+
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2500,
+      "launchAutoHide": true,
+      "launchFadeOutDuration": 500,
+      "backgroundColor": "#0f172a",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true,
+      "layoutName": "launch_screen",
+      "useDialog": false
+    },
+
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#0f172a",
+      "overlaysWebView": true,
+      "animated": true
+    },
+
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true,
+      "style": "DARK"
+    },
+
+    "App": {
+      "launchUrl": "/"
+    },
+
+    "Geolocation": {
+      "iosRequestWhenInUsePermission": true,
+      "iosLocationAccuracy": "best",
+      "iosBackgroundModes": ["location"]
+    },
+
+    "Camera": {
+      "iosUsageDescription": "O Afaia Maps usa a câmera para capturar fotos georreferenciadas no campo.",
+      "androidUsageDescription": "O Afaia Maps usa a câmera para capturar fotos georreferenciadas no campo."
+    },
+
+    "Filesystem": {
+      "iosUsageDescription": "O Afaia Maps precisa acessar arquivos para importar mapas GPX, KML e GeoPDF.",
+      "androidUsageDescription": "O Afaia Maps precisa acessar o armazenamento para importar e exportar mapas."
+    },
+
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    },
+
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#2563eb",
+      "sound": null
+    },
+
+    "Network": {
+      "watchInterval": 2000
+    },
+
+    "ScreenOrientation": {
+      "default": "portrait"
+    },
+
+    "Haptics": {},
+
+    "Share": {}
+  },
+
+  "android": {
+    "buildOptions": {
+      "keystorePath":    "android/app/afaia-release.keystore",
+      "keystoreAlias":   "afaia-key",
+      "releaseType":     "AAB"
+    },
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#0f172a",
+    "useLegacyBridge": false,
+    "minWebViewVersion": 80,
+    "appendUserAgent": "AfaiaMapps/1.0 Android"
+  },
+
+  "ios": {
+    "contentInset": "automatic",
+    "allowsLinkPreview": false,
+    "scrollEnabled": false,
+    "backgroundColor": "#0f172a",
+    "preferredContentMode": "mobile",
+    "appendUserAgent": "AfaiaMaps/1.0 iOS",
+    "limitsNavigationsToAppBoundDomains": true
+  }
+}

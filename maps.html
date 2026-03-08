@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — Biblioteca de Mapas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+        <rect width="36" height="36" rx="9" fill="url(#sLG2)"/>
+        <path d="M18 6C12.5 6 8 10.5 8 16C8 22 18 30 18 30S28 22 28 16C28 10.5 23.5 6 18 6Z" fill="white" fill-opacity="0.9"/>
+        <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+        <defs><linearGradient id="sLG2" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0F2D3A"/><stop offset="100%" stop-color="#1F6B5C"/></linearGradient></defs>
+      </svg>
+      <span class="logo-text">Afaia <span>Maps</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Principal</div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="app.html" class="nav-item"><i class="fas fa-map"></i> Mapa</a>
+        <a href="maps.html" class="nav-item active"><i class="fas fa-layer-group"></i> Biblioteca de Mapas</a>
+        <a href="tracks.html" class="nav-item"><i class="fas fa-route"></i> Trilhas</a>
+        <a href="waypoints.html" class="nav-item"><i class="fas fa-map-pin"></i> Waypoints</a>
+        <a href="projects.html" class="nav-item"><i class="fas fa-folder"></i> Projetos</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Coleta</div>
+        <a href="photos.html" class="nav-item"><i class="fas fa-camera"></i> Fotos</a>
+        <a href="export.html" class="nav-item"><i class="fas fa-file-export"></i> Exportar</a>
+        <a href="sync.html" class="nav-item"><i class="fas fa-sync-alt"></i> Sincronização <span class="sync-badge">3</span></a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Administração</div>
+        <a href="admin.html" class="nav-item"><i class="fas fa-desktop"></i> Painel Web</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar" style="background:var(--gradient-accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:white;">JS</div>
+        <div class="user-info">
+          <div class="user-name">João Silva</div>
+          <div class="user-role">Geólogo · Plano Pro</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <div class="topbar-title">Biblioteca de Mapas</div>
+          <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">8 mapas · 2.4 GB usados</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary btn-sm" onclick="openModal('importModal')">
+          <i class="fas fa-file-import"></i> Importar Mapa
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- BREADCRUMB -->
+      <div class="breadcrumb">
+        <a href="dashboard.html">Dashboard</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Biblioteca de Mapas</span>
+      </div>
+
+      <!-- SEARCH / FILTER BAR -->
+      <div class="card mb-6" style="padding:var(--space-4) var(--space-5);">
+        <div style="display:flex;gap:var(--space-4);align-items:center;flex-wrap:wrap;">
+          <div class="input-icon-wrap" style="flex:1;min-width:200px;">
+            <i class="fas fa-search icon-left"></i>
+            <input type="text" class="form-input" id="mapSearch" placeholder="Buscar mapa por nome…" oninput="filterMaps()" style="background:var(--color-fog);">
+          </div>
+          <select class="form-select" id="mapTypeFilter" onchange="filterMaps()" style="width:140px;background:var(--color-fog);">
+            <option value="">Todos os tipos</option>
+            <option value="GeoPDF">GeoPDF</option>
+            <option value="GeoTIFF">GeoTIFF</option>
+            <option value="GPX">GPX</option>
+            <option value="KML">KML</option>
+            <option value="GeoJSON">GeoJSON</option>
+          </select>
+          <select class="form-select" id="mapProjectFilter" onchange="filterMaps()" style="width:160px;background:var(--color-fog);">
+            <option value="">Todos os projetos</option>
+            <option value="Projeto Cobre">Projeto Cobre</option>
+            <option value="Serra Norte">Serra Norte</option>
+          </select>
+          <div class="tabs" style="width:auto;">
+            <button class="tab active" onclick="switchView('grid', this)"><i class="fas fa-th"></i></button>
+            <button class="tab" onclick="switchView('list', this)"><i class="fas fa-list"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS ROW -->
+      <div class="grid grid-4 gap-4 mb-6">
+        <div class="stat-card green">
+          <div class="stat-icon green"><i class="fas fa-file-pdf"></i></div>
+          <div class="stat-value">4</div>
+          <div class="stat-label">GeoPDF importados</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon blue"><i class="fas fa-wifi-slash"></i></div>
+          <div class="stat-value">5</div>
+          <div class="stat-label">Disponíveis offline</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon orange"><i class="fas fa-hdd"></i></div>
+          <div class="stat-value">2.4 GB</div>
+          <div class="stat-label">Armazenamento usado</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal"><i class="fas fa-clock"></i></div>
+          <div class="stat-value">Hoje</div>
+          <div class="stat-label">Último import: 3h atrás</div>
+        </div>
+      </div>
+
+      <!-- MAPS GRID -->
+      <div id="mapsGrid" class="maps-display">
+        <!-- Rendered by JS -->
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ====== IMPORT MODAL ====== -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-header">
+      <span class="modal-title"><i class="fas fa-file-import" style="color:var(--color-accent-green);margin-right:6px;"></i>Importar Mapa</span>
+      <button class="btn btn-ghost btn-icon-sm" onclick="closeModal('importModal')"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Step 1: Upload -->
+      <div id="importStep1">
+        <div class="import-dropzone" id="dropzone"
+          ondragover="handleDragOver(event)"
+          ondrop="handleDrop(event)"
+          onclick="document.getElementById('fileInput').click()">
+          <div class="import-dropzone-icon">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <h4>Arraste seu arquivo aqui</h4>
+          <p>ou clique para selecionar</p>
+          <div class="format-tags" style="margin-top:var(--space-4);">
+            <span class="format-chip" style="padding:4px 10px;font-size:11px;"><i class="fas fa-file-pdf"></i> GeoPDF</span>
+            <span class="format-chip" style="padding:4px 10px;font-size:11px;"><i class="fas fa-mountain"></i> GeoTIFF</span>
+            <span class="format-chip" style="padding:4px 10px;font-size:11px;"><i class="fas fa-route"></i> GPX</span>
+            <span class="format-chip" style="padding:4px 10px;font-size:11px;"><i class="fas fa-globe"></i> KML/KMZ</span>
+            <span class="format-chip" style="padding:4px 10px;font-size:11px;"><i class="fas fa-map"></i> GeoJSON</span>
+          </div>
+          <input type="file" id="fileInput" accept=".pdf,.tif,.tiff,.gpx,.kml,.kmz,.geojson,.json" style="display:none;" onchange="handleFileSelect(this)">
+        </div>
+
+        <div id="fileSelected" style="display:none;margin-top:var(--space-4);">
+          <div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);background:var(--color-fog);border-radius:var(--radius-lg);border:1.5px solid rgba(47,163,124,0.2);">
+            <div style="width:44px;height:44px;background:rgba(47,163,124,0.12);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-accent-green);flex-shrink:0;">
+              <i class="fas fa-file" id="fileTypeIcon"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div id="fileName" style="font-weight:700;font-size:var(--text-sm);color:var(--color-petroleum);"></div>
+              <div id="fileSize" style="font-size:var(--text-xs);color:var(--color-gray-mid);font-family:var(--font-mono);"></div>
+            </div>
+            <button class="btn btn-ghost btn-icon-sm" onclick="clearFile()"><i class="fas fa-times"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Processing -->
+      <div id="importStep2" style="display:none;">
+        <h4 style="margin-bottom:var(--space-5);color:var(--color-petroleum);">Validando e processando mapa…</h4>
+        <div class="import-steps" id="importStepsList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Step 3: Result -->
+      <div id="importStep3" style="display:none;">
+        <div id="importSuccess" style="text-align:center;padding:var(--space-6) 0;">
+          <div style="width:72px;height:72px;background:rgba(47,163,124,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-5);font-size:30px;color:var(--color-accent-green);">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h3 style="color:var(--color-petroleum);margin-bottom:var(--space-3);">Mapa importado com sucesso!</h3>
+          <p style="font-size:var(--text-sm);color:var(--color-gray-dark);margin-bottom:var(--space-5);">O mapa foi processado, georreferenciado e adicionado à sua biblioteca.</p>
+          <div id="importResultCard" style="background:var(--color-fog);border-radius:var(--radius-lg);padding:var(--space-4);text-align:left;margin-bottom:var(--space-5);">
+            <!-- Populated by JS -->
+          </div>
+          <div style="display:flex;gap:var(--space-3);justify-content:center;">
+            <button class="btn btn-primary btn-sm" onclick="openImportedMap()"><i class="fas fa-map"></i> Abrir no mapa</button>
+            <button class="btn btn-outline btn-sm" onclick="closeModal('importModal');resetImport();">Fechar</button>
+          </div>
+        </div>
+
+        <div id="importError" style="display:none;text-align:center;padding:var(--space-6) 0;">
+          <div style="width:72px;height:72px;background:rgba(201,75,75,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto var(--space-5);font-size:30px;color:var(--color-error);">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <h3 style="color:var(--color-error);margin-bottom:var(--space-3);">Arquivo não georreferenciado</h3>
+          <p style="font-size:var(--text-sm);color:var(--color-gray-dark);margin-bottom:var(--space-5);max-width:380px;margin-left:auto;margin-right:auto;">
+            Este PDF não possui metadados espaciais (georreferenciamento). Ele não pode ser usado como mapa navegável com GPS.
+          </p>
+          <div style="background:rgba(229,138,43,0.08);border:1px solid rgba(229,138,43,0.2);border-radius:var(--radius-lg);padding:var(--space-4);text-align:left;margin-bottom:var(--space-5);">
+            <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-alert);margin-bottom:var(--space-2);">
+              <i class="fas fa-info-circle"></i> O que fazer?
+            </div>
+            <ul style="font-size:var(--text-sm);color:var(--color-gray-dark);list-style:disc;padding-left:var(--space-5);display:flex;flex-direction:column;gap:var(--space-2);">
+              <li>Utilize um software GIS (QGIS, ArcGIS) para georreferenciar o PDF</li>
+              <li>Exporte como GeoPDF com metadados espaciais embutidos</li>
+              <li>Salvar apenas como documento (sem navegação GPS)</li>
+            </ul>
+          </div>
+          <div style="display:flex;gap:var(--space-3);justify-content:center;">
+            <button class="btn btn-alert btn-sm" onclick="saveAsDocument()"><i class="fas fa-file"></i> Salvar como documento</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetImport()">Tentar outro arquivo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer" id="importFooter">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('importModal');resetImport();">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="importStartBtn" onclick="startImport()" disabled>
+        <i class="fas fa-upload"></i> Iniciar importação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAP DETAIL MODAL -->
+<div class="modal-overlay" id="mapDetailModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <span class="modal-title" id="mdTitle">Detalhes do Mapa</span>
+      <button class="btn btn-ghost btn-icon-sm" onclick="closeModal('mapDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="mapDetailBody">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('mapDetailModal')">Fechar</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteMap(currentMapId)"><i class="fas fa-trash"></i> Remover</button>
+      <button class="btn btn-primary btn-sm" onclick="window.location.href='app.html'"><i class="fas fa-map"></i> Abrir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<script src="js/app.js"></script>
+<script>
+/* ====== MAPS DATA ====== */
+const mapsData = [
+  { id:1, name:'Mapa Geológico Área 3',    type:'GeoPDF',  size:'24 MB', date:'08/03/2026', offline:true,  georef:true,  project:'Projeto Cobre', crs:'SIRGAS 2000 / UTM 23S', bounds:'-23.6°/-46.7°', thumb:'geo'   },
+  { id:2, name:'Topografia Serra Norte',    type:'GeoTIFF', size:'18 MB', date:'07/03/2026', offline:true,  georef:true,  project:'Serra Norte',   crs:'WGS 84 / UTM 23S',      bounds:'-22.8°/-45.9°', thumb:'topo'  },
+  { id:3, name:'Rota Campo Base A',         type:'GPX',     size:'0.8 MB',date:'06/03/2026', offline:false, georef:true,  project:'Serra Norte',   crs:'WGS 84',                 bounds:'-23.1°/-46.2°', thumb:'route' },
+  { id:4, name:'Planta Mina Cobre',         type:'GeoPDF',  size:'41 MB', date:'05/03/2026', offline:true,  georef:true,  project:'Projeto Cobre', crs:'SIRGAS 2000 / UTM 23S', bounds:'-23.7°/-47.1°', thumb:'geo'   },
+  { id:5, name:'Zonas Ambientais',          type:'KML',     size:'3.2 MB',date:'04/03/2026', offline:false, georef:true,  project:'Serra Norte',   crs:'WGS 84',                 bounds:'-22.5°/-45.5°', thumb:'env'   },
+  { id:6, name:'Levantamento Drones',       type:'GeoTIFF', size:'87 MB', date:'03/03/2026', offline:true,  georef:true,  project:'Projeto Cobre', crs:'WGS 84 / UTM 23S',      bounds:'-23.5°/-46.5°', thumb:'drone' },
+  { id:7, name:'Mapa Hidrográfico',         type:'GeoJSON', size:'1.4 MB',date:'02/03/2026', offline:false, georef:true,  project:'Serra Norte',   crs:'WGS 84',                 bounds:'-22.9°/-46.0°', thumb:'hydro' },
+  { id:8, name:'Documento PDF sem CRS',     type:'PDF',     size:'5.1 MB',date:'01/03/2026', offline:false, georef:false, project:'-',             crs:'-',                      bounds:'-',             thumb:'doc'   },
+];
+
+let filteredMaps = [...mapsData];
+let viewMode = 'grid';
+let currentMapId = null;
+
+const thumbGradients = {
+  geo:   ['#1F6B5C','#2FA37C'],
+  topo:  ['#163F59','#1F6B5C'],
+  route: ['#E58A2B','#F5A623'],
+  env:   ['#2FA37C','#4ECDA4'],
+  drone: ['#0F2D3A','#163F59'],
+  hydro: ['#163F59','#1F6B5C'],
+  doc:   ['#A7B0B7','#49545C'],
+};
+
+const typeIcons = {
+  GeoPDF:'fas fa-file-pdf', GeoTIFF:'fas fa-mountain',
+  GPX:'fas fa-route', KML:'fas fa-globe', KMZ:'fas fa-globe',
+  GeoJSON:'fas fa-map', PDF:'fas fa-file-alt',
+};
+
+function renderMaps() {
+  const container = document.getElementById('mapsGrid');
+  if (!container) return;
+
+  if (filteredMaps.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-map"></i></div>
+        <div class="empty-title">Nenhum mapa encontrado</div>
+        <div class="empty-desc">Tente ajustar os filtros ou importe um novo mapa.</div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('importModal')"><i class="fas fa-file-import"></i> Importar Mapa</button>
+      </div>`;
+    return;
+  }
+
+  if (viewMode === 'grid') {
+    container.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:var(--space-5);';
+    container.innerHTML = filteredMaps.map(m => {
+      const colors = thumbGradients[m.thumb] || thumbGradients.geo;
+      const icon   = typeIcons[m.type] || 'fas fa-map';
+      return `
+        <div class="card" style="cursor:pointer;" onclick="openMapDetail(${m.id})">
+          <div style="height:130px;background:linear-gradient(135deg,${colors[0]},${colors[1]});position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            ${m.georef ? '' : '<div style="position:absolute;top:8px;right:8px;"><span class="badge badge-orange"><i class="fas fa-exclamation-triangle"></i> Sem CRS</span></div>'}
+            ${m.offline ? '<div style="position:absolute;top:8px;left:8px;"><span class="badge" style="background:rgba(47,163,124,0.85);color:white;"><i class="fas fa-download"></i> offline</span></div>' : ''}
+            <!-- Mini map SVG -->
+            <svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;inset:0;opacity:0.3;">
+              <path d="M10,50 Q30,20 60,35 Q90,50 110,25" stroke="white" stroke-width="1.5" fill="none"/>
+              <path d="M5,65 Q25,40 55,50 Q85,65 115,40" stroke="white" stroke-width="1" fill="none"/>
+              <circle cx="60" cy="35" r="4" fill="white" opacity="0.8"/>
+              <circle cx="30" cy="55" r="3" fill="white" opacity="0.6"/>
+            </svg>
+            <i class="${icon}" style="font-size:32px;color:rgba(255,255,255,0.85);position:relative;z-index:1;"></i>
+          </div>
+          <div class="card-body" style="padding:var(--space-4);">
+            <div style="display:flex;align-items:flex-start;gap:var(--space-2);margin-bottom:var(--space-2);">
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:var(--text-sm);color:var(--color-petroleum);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
+                <div style="font-size:var(--text-xs);color:var(--color-gray-mid);margin-top:2px;">${m.project}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;margin-bottom:var(--space-3);">
+              <span class="badge badge-${m.type==='GeoPDF'?'red':'blue'}" style="${m.type==='GeoPDF'?'background:rgba(201,75,75,0.12);color:#C94B4B;':''}">${m.type}</span>
+              <span class="badge badge-gray">${m.size}</span>
+              ${m.georef ? '<span class="badge badge-green"><i class="fas fa-check"></i> Georref.</span>' : '<span class="badge badge-orange">Sem CRS</span>'}
+            </div>
+            <div style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn btn-ghost btn-icon-sm" onclick="event.stopPropagation();shareMap(${m.id})" title="Compartilhar"><i class="fas fa-share-alt" style="font-size:11px;"></i></button>
+              <button class="btn btn-ghost btn-icon-sm" onclick="event.stopPropagation();deleteMap(${m.id})" title="Remover"><i class="fas fa-trash" style="font-size:11px;color:var(--color-error);"></i></button>
+              <button class="btn btn-primary btn-xs" onclick="event.stopPropagation();window.location.href='app.html?map=${m.id}'"><i class="fas fa-map"></i> Abrir</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  } else {
+    container.style.cssText = '';
+    container.innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Mapa</th><th>Tipo</th><th>Projeto</th><th>Tamanho</th><th>CRS</th><th>Data</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredMaps.map(m => {
+              const icon = typeIcons[m.type] || 'fas fa-map';
+              return `
+                <tr style="cursor:pointer;" onclick="openMapDetail(${m.id})">
+                  <td>
+                    <div style="display:flex;align-items:center;gap:var(--space-3);">
+                      <div style="width:36px;height:36px;background:linear-gradient(135deg,${(thumbGradients[m.thumb]||thumbGradients.geo)[0]},${(thumbGradients[m.thumb]||thumbGradients.geo)[1]});border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="${icon}" style="color:rgba(255,255,255,0.85);font-size:14px;"></i>
+                      </div>
+                      <div>
+                        <div style="font-weight:600;font-size:var(--text-sm);">${m.name}</div>
+                        <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">${m.date}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="badge badge-gray">${m.type}</span></td>
+                  <td style="font-size:var(--text-sm);color:var(--color-gray-dark);">${m.project}</td>
+                  <td><span class="text-mono" style="font-size:11px;">${m.size}</span></td>
+                  <td><span class="text-mono" style="font-size:10px;color:var(--color-gray-mid);">${m.crs}</span></td>
+                  <td style="color:var(--color-gray-mid);font-size:var(--text-xs);">${m.date}</td>
+                  <td>
+                    ${m.georef ? '<span class="badge badge-green"><i class="fas fa-check"></i> Georref.</span>' : '<span class="badge badge-orange">Sem CRS</span>'}
+                    ${m.offline ? '<span class="badge badge-green" style="margin-left:4px;"><i class="fas fa-download"></i> offline</span>' : ''}
+                  </td>
+                  <td>
+                    <div style="display:flex;gap:4px;" onclick="event.stopPropagation()">
+                      <button class="btn btn-primary btn-xs" onclick="window.location.href='app.html?map=${m.id}'"><i class="fas fa-map"></i> Abrir</button>
+                      <button class="btn btn-ghost btn-icon-sm" onclick="deleteMap(${m.id})"><i class="fas fa-trash" style="font-size:11px;color:var(--color-error);"></i></button>
+                    </div>
+                  </td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+}
+
+function filterMaps() {
+  const q    = document.getElementById('mapSearch')?.value.toLowerCase() || '';
+  const type = document.getElementById('mapTypeFilter')?.value || '';
+  const proj = document.getElementById('mapProjectFilter')?.value || '';
+  filteredMaps = mapsData.filter(m =>
+    (!q    || m.name.toLowerCase().includes(q)) &&
+    (!type || m.type === type) &&
+    (!proj || m.project === proj)
+  );
+  renderMaps();
+}
+
+function switchView(mode, btn) {
+  viewMode = mode;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderMaps();
+}
+
+function openMapDetail(id) {
+  const m = mapsData.find(x => x.id === id);
+  if (!m) return;
+  currentMapId = id;
+  const colors = thumbGradients[m.thumb] || thumbGradients.geo;
+  const icon   = typeIcons[m.type] || 'fas fa-map';
+  document.getElementById('mdTitle').textContent = m.name;
+  document.getElementById('mapDetailBody').innerHTML = `
+    <div style="height:160px;background:linear-gradient(135deg,${colors[0]},${colors[1]});border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-5);position:relative;overflow:hidden;">
+      <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;opacity:0.25;">
+        <path d="M10,60 Q60,20 100,40 Q140,60 190,25" stroke="white" stroke-width="2" fill="none"/>
+        <path d="M5,80 Q55,45 95,60 Q135,80 195,45" stroke="white" stroke-width="1.5" fill="none"/>
+        <circle cx="100" cy="40" r="7" fill="white" opacity="0.9"/>
+      </svg>
+      <i class="${icon}" style="font-size:48px;color:rgba(255,255,255,0.85);position:relative;z-index:1;"></i>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);">
+      ${[
+        ['Tipo', m.type],['Tamanho', m.size],['Projeto', m.project],['Importado em', m.date],
+        ['Sistema de Coordenadas', m.crs],['Extensão', m.bounds],
+      ].map(([k,v]) => `
+        <div style="background:var(--color-fog);padding:var(--space-3);border-radius:var(--radius-md);">
+          <div style="font-size:10px;font-weight:700;color:var(--color-gray-mid);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;">${k}</div>
+          <div style="font-size:var(--text-sm);font-weight:600;color:var(--color-petroleum);font-family:${k.includes('Coor')||k.includes('Exten')?'var(--font-mono)':'inherit'}">${v}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div style="margin-top:var(--space-4);display:flex;gap:var(--space-2);flex-wrap:wrap;">
+      ${m.georef ? '<span class="badge badge-green"><i class="fas fa-check-circle"></i> Georreferenciado</span>' : '<span class="badge badge-orange"><i class="fas fa-exclamation-triangle"></i> Sem CRS</span>'}
+      ${m.offline ? '<span class="badge badge-blue"><i class="fas fa-download"></i> Disponível offline</span>' : '<span class="badge badge-gray">Apenas online</span>'}
+    </div>`;
+  openModal('mapDetailModal');
+}
+
+function deleteMap(id) {
+  const idx = mapsData.findIndex(m => m.id === id);
+  if (idx > -1) {
+    const name = mapsData[idx].name;
+    mapsData.splice(idx, 1);
+    filterMaps();
+    closeModal('mapDetailModal');
+    showToast('success', 'Mapa removido', `"${name}" foi removido da biblioteca.`);
+  }
+}
+
+function shareMap(id) {
+  const m = mapsData.find(x => x.id === id);
+  if (m) {
+    showToast('info', 'Link gerado!', `Link de compartilhamento de "${m.name}" copiado.`);
+  }
+}
+
+/* ====== IMPORT LOGIC ====== */
+let selectedFile = null;
+
+function handleFileSelect(input) {
+  if (input.files?.length) processFile(input.files[0]);
+}
+
+function handleDragOver(e) { e.preventDefault(); document.getElementById('dropzone')?.classList.add('drag-over'); }
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropzone')?.classList.remove('drag-over');
+  if (e.dataTransfer.files?.length) processFile(e.dataTransfer.files[0]);
+}
+
+function processFile(file) {
+  selectedFile = file;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const icons = { pdf:'fas fa-file-pdf', tif:'fas fa-mountain', tiff:'fas fa-mountain', gpx:'fas fa-route', kml:'fas fa-globe', kmz:'fas fa-globe', geojson:'fas fa-map', json:'fas fa-map' };
+
+  document.getElementById('fileTypeIcon').className = icons[ext] || 'fas fa-file';
+  document.getElementById('fileName').textContent   = file.name;
+  document.getElementById('fileSize').textContent   = formatBytes(file.size);
+  document.getElementById('fileSelected').style.display = 'block';
+  document.getElementById('importStartBtn').disabled = false;
+}
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('fileSelected').style.display = 'none';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('importStartBtn').disabled = true;
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+const importSteps = [
+  { id:'read',    label:'Lendo arquivo',                   desc:'Verificando formato e integridade' },
+  { id:'meta',    label:'Extraindo metadados espaciais',   desc:'Buscando coordenadas e CRS embutidos' },
+  { id:'georef',  label:'Validando georreferenciamento',   desc:'Verificando bounding box e projeção' },
+  { id:'render',  label:'Processando para visualização',   desc:'Gerando tiles e camadas internas' },
+  { id:'save',    label:'Salvando na biblioteca',          desc:'Adicionando ao armazenamento offline' },
+];
+
+function startImport() {
+  document.getElementById('importStep1').style.display = 'none';
+  document.getElementById('importStep2').style.display = 'block';
+  document.getElementById('importFooter').style.display = 'none';
+
+  const list = document.getElementById('importStepsList');
+  list.innerHTML = importSteps.map(s => `
+    <div class="import-step" id="step-${s.id}">
+      <div class="import-step-icon pending" id="step-icon-${s.id}">
+        <i class="fas fa-circle" style="font-size:8px;"></i>
+      </div>
+      <div class="import-step-content">
+        <strong>${s.label}</strong>
+        <span id="step-desc-${s.id}">${s.desc}</span>
+      </div>
+    </div>
+  `).join('');
+
+  const isPDF = selectedFile?.name?.toLowerCase().endsWith('.pdf');
+  const isGeo = isPDF ? Math.random() > 0.3 : true; // 70% chance PDF is georef'd
+
+  let i = 0;
+  function runStep() {
+    if (i >= importSteps.length) {
+      setTimeout(() => {
+        document.getElementById('importStep2').style.display = 'none';
+        document.getElementById('importStep3').style.display = 'block';
+        if (isGeo) {
+          document.getElementById('importSuccess').style.display = 'block';
+          document.getElementById('importError').style.display = 'none';
+          document.getElementById('importResultCard').innerHTML = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2);">
+              ${[['Arquivo', selectedFile?.name||'mapa.pdf'],['Tamanho',formatBytes(selectedFile?.size||0)],['SRC','SIRGAS 2000 / UTM 23S'],['Extensão','-23.6°, -46.7°']].map(([k,v])=>`
+                <div><span style="font-size:10px;color:var(--color-gray-mid);font-weight:700;text-transform:uppercase;display:block;margin-bottom:2px;">${k}</span><span style="font-size:var(--text-xs);font-family:var(--font-mono);color:var(--color-petroleum);font-weight:600;">${v}</span></div>
+              `).join('')}
+            </div>`;
+          // Add to library
+          mapsData.unshift({ id: Date.now(), name: selectedFile?.name?.replace(/\.[^/.]+$/, '') || 'Novo Mapa', type: 'GeoPDF', size: formatBytes(selectedFile?.size||0), date: '08/03/2026', offline: false, georef: true, project: 'Geral', crs: 'SIRGAS 2000 / UTM 23S', bounds: '-23.6°/-46.7°', thumb: 'geo' });
+          filterMaps();
+        } else {
+          document.getElementById('importSuccess').style.display = 'none';
+          document.getElementById('importError').style.display = 'block';
+        }
+      }, 600);
+      return;
+    }
+
+    const step    = importSteps[i];
+    const icon    = document.getElementById('step-icon-' + step.id);
+    const desc    = document.getElementById('step-desc-' + step.id);
+    if (icon) { icon.className = 'import-step-icon active'; icon.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:12px;"></i>'; }
+    if (desc) desc.textContent = 'Processando…';
+
+    setTimeout(() => {
+      if (icon) { icon.className = 'import-step-icon done'; icon.innerHTML = '<i class="fas fa-check" style="font-size:12px;"></i>'; }
+      if (desc) desc.textContent = importSteps[i]?.desc || 'Concluído';
+      i++;
+      setTimeout(runStep, 300);
+    }, 600 + Math.random() * 400);
+  }
+
+  runStep();
+}
+
+function resetImport() {
+  selectedFile = null;
+  document.getElementById('importStep1').style.display = 'block';
+  document.getElementById('importStep2').style.display = 'none';
+  document.getElementById('importStep3').style.display = 'none';
+  document.getElementById('importFooter').style.display = 'flex';
+  document.getElementById('fileSelected').style.display = 'none';
+  document.getElementById('importStartBtn').disabled = true;
+}
+
+function openImportedMap() { closeModal('importModal'); resetImport(); window.location.href='app.html'; }
+function saveAsDocument() { closeModal('importModal'); resetImport(); showToast('info', 'Salvo como documento', 'Arquivo disponível em Projetos > Documentos.'); }
+
+/* ====== INIT ====== */
+renderMaps();
+</script>
+</body>
+</html>

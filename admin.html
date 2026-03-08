@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps — Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="app-body">
+<div class="app-layout">
+
+  <!-- SIDEBAR ADMIN -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+        <rect width="36" height="36" rx="9" fill="url(#sLGA)"/>
+        <path d="M18 6C12.5 6 8 10.5 8 16C8 22 18 30 18 30S28 22 28 16C28 10.5 23.5 6 18 6Z" fill="white" fill-opacity="0.9"/>
+        <circle cx="18" cy="16" r="4.5" fill="#2FA37C"/>
+        <defs><linearGradient id="sLGA" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#0F2D3A"/><stop offset="100%" stop-color="#1F6B5C"/></linearGradient></defs>
+      </svg>
+      <span class="logo-text">Afaia <span>Admin</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Painel</div>
+        <a href="admin.html" class="nav-item active"><i class="fas fa-chart-bar"></i> Dashboard Admin</a>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> App — Dashboard</a>
+        <a href="app.html" class="nav-item"><i class="fas fa-map"></i> Mapa ao Vivo</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Gestão</div>
+        <a href="#" class="nav-item" onclick="showSection('users')"><i class="fas fa-users"></i> Usuários</a>
+        <a href="projects.html" class="nav-item"><i class="fas fa-folder"></i> Projetos</a>
+        <a href="maps.html" class="nav-item"><i class="fas fa-layer-group"></i> Mapas</a>
+        <a href="tracks.html" class="nav-item"><i class="fas fa-route"></i> Trilhas</a>
+        <a href="waypoints.html" class="nav-item"><i class="fas fa-map-pin"></i> Waypoints</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-section-label">Sistema</div>
+        <a href="sync.html" class="nav-item"><i class="fas fa-sync-alt"></i> Sincronização</a>
+        <a href="#" class="nav-item"><i class="fas fa-share-alt"></i> Compartilhamentos</a>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-mini">
+        <div class="avatar" style="background:linear-gradient(135deg,#C94B4B,#E58A2B);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;">ADM</div>
+        <div class="user-info">
+          <div class="user-name">Administrador</div>
+          <div class="user-role">Super Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="btn btn-ghost btn-icon" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div>
+          <div class="topbar-title">Painel Administrativo</div>
+          <div style="font-size:var(--text-xs);color:var(--color-gray-mid);">Visão geral da plataforma</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span id="liveBadge" class="badge badge-green" style="transition:opacity 0.3s;">
+          <span class="dot dot-green pulse" style="width:7px;height:7px;margin-right:4px;"></span> Sistema Online
+        </span>
+        <button class="btn btn-primary btn-sm" onclick="goToMapUpload()">
+          <i class="fas fa-file-import"></i> Upload de Mapa
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- TABS -->
+      <div class="admin-tabs-bar mb-6">
+        <button class="admin-tab active" onclick="showAdminTab('overview', this)"><i class="fas fa-chart-bar"></i> Visão Geral</button>
+        <button class="admin-tab" onclick="showAdminTab('users', this)"><i class="fas fa-users"></i> Usuários</button>
+        <button class="admin-tab" onclick="showAdminTab('maps', this)"><i class="fas fa-layer-group"></i> Mapas</button>
+        <button class="admin-tab" onclick="showAdminTab('activity', this)"><i class="fas fa-activity"></i> Atividade</button>
+        <button class="admin-tab" onclick="showAdminTab('storage', this)"><i class="fas fa-hdd"></i> Armazenamento</button>
+      </div>
+
+      <!-- ====== OVERVIEW ====== -->
+      <div id="tabOverview">
+        <!-- KPI STATS -->
+        <div class="grid grid-4 gap-4 mb-6">
+          <div class="stat-card green">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon green"><i class="fas fa-users"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +3 semana</span>
+            </div>
+            <div class="stat-value" id="kpiActiveUsers">47</div>
+            <div class="stat-label">Usuários ativos</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon blue"><i class="fas fa-layer-group"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +8 semana</span>
+            </div>
+            <div class="stat-value">312</div>
+            <div class="stat-label">Mapas na plataforma</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon orange"><i class="fas fa-route"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +24 semana</span>
+            </div>
+            <div class="stat-value">1.847</div>
+            <div class="stat-label">Trilhas sincronizadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon teal"><i class="fas fa-map-pin"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +156 semana</span>
+            </div>
+            <div class="stat-value">24.391</div>
+            <div class="stat-label">Waypoints totais</div>
+          </div>
+        </div>
+
+        <!-- CHARTS + TABLE -->
+        <div class="grid" style="grid-template-columns:1.8fr 1fr;gap:var(--space-5);margin-bottom:var(--space-5);">
+
+          <!-- Activity Chart -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Atividade dos Usuários — 30 dias</h5>
+              <select class="form-select" style="width:130px;font-size:var(--text-xs);padding:4px 8px;">
+                <option>Todos usuários</option>
+                <option>Projeto Cobre</option>
+                <option>Serra Norte</option>
+              </select>
+            </div>
+            <div class="card-body" style="height:260px;position:relative;">
+              <canvas id="adminActivityChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Type Distribution -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Distribuição de Dados</h5>
+            </div>
+            <div class="card-body" style="height:260px;position:relative;display:flex;align-items:center;justify-content:center;">
+              <canvas id="distChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAP OVERVIEW + RECENT SYNCS -->
+        <div class="grid" style="grid-template-columns:1fr 1fr;gap:var(--space-5);">
+
+          <!-- Mini global map -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Mapa Global — Atividade de Campo</h5>
+              <span class="badge badge-green"><span class="dot dot-green pulse" style="margin-right:4px;"></span> Ao vivo</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div style="height:220px;background:var(--gradient-map);position:relative;overflow:hidden;">
+                <canvas id="globalMapCanvas" width="600" height="220"></canvas>
+                <div style="position:absolute;bottom:10px;left:12px;background:rgba(15,45,58,0.8);color:white;padding:4px 12px;border-radius:20px;font-size:10px;font-family:var(--font-mono);">
+                  <span class="dot dot-green pulse" style="margin-right:5px;"></span>47 usuários em campo
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Syncs -->
+          <div class="card">
+            <div class="card-header">
+              <h5 style="font-weight:700;color:var(--color-petroleum);">Sincronizações Recentes</h5>
+              <a href="sync.html" class="btn btn-ghost btn-xs">Ver todas</a>
+            </div>
+            <div class="card-body" style="padding:0;" id="recentSyncsList">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== USERS ====== -->
+      <div id="tabUsers" style="display:none;">
+        <div class="card mb-5" style="padding:var(--space-4) var(--space-5);">
+          <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+            <div class="input-icon-wrap" style="flex:1;min-width:200px;">
+              <i class="fas fa-search icon-left"></i>
+              <input type="text" class="form-input" id="userSearch" placeholder="Buscar por nome, e-mail ou função…" oninput="filterUsers()" style="background:var(--color-fog);">
+            </div>
+            <select class="form-select" id="planFilter" onchange="filterUsers()" style="width:150px;background:var(--color-fog);">
+              <option value="">Todos os planos</option>
+              <option value="Explorador">Explorador</option>
+              <option value="Profissional">Profissional</option>
+              <option value="Corporativo">Corporativo</option>
+            </select>
+            <select class="form-select" id="statusFilter" onchange="filterUsers()" style="width:130px;background:var(--color-fog);">
+              <option value="">Todos os status</option>
+              <option value="ativo">Ativos</option>
+              <option value="inativo">Inativos</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="inviteUser()">
+              <i class="fas fa-user-plus"></i> Convidar
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th class="th-sort" data-field="name" onclick="sortUsers('name')">Usuário <i class="fas fa-sort"></i></th>
+                  <th>E-mail</th>
+                  <th class="th-sort" data-field="plan" onclick="sortUsers('plan')">Plano <i class="fas fa-sort"></i></th>
+                  <th class="th-sort" data-field="projects" onclick="sortUsers('projects')" style="text-align:center;">Projetos <i class="fas fa-sort"></i></th>
+                  <th class="th-sort" data-field="maps" onclick="sortUsers('maps')" style="text-align:center;">Mapas <i class="fas fa-sort"></i></th>
+                  <th>Última atividade</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Rendered by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== MAPS ADMIN ====== -->
+      <div id="tabMaps" style="display:none;">
+        <div class="grid grid-4 gap-4 mb-5">
+          <div class="stat-card green">
+            <div class="stat-icon green"><i class="fas fa-file-pdf"></i></div>
+            <div class="stat-value">187</div>
+            <div class="stat-label">GeoPDF</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon blue"><i class="fas fa-mountain"></i></div>
+            <div class="stat-value">64</div>
+            <div class="stat-label">GeoTIFF</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon orange"><i class="fas fa-route"></i></div>
+            <div class="stat-value">38</div>
+            <div class="stat-label">GPX / KML</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon teal"><i class="fas fa-map"></i></div>
+            <div class="stat-value">23</div>
+            <div class="stat-label">GeoJSON</div>
+          </div>
+        </div>
+
+        <!-- Filter bar dos mapas -->
+        <div class="card mb-4" style="padding:var(--space-3) var(--space-5);">
+          <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+            <div class="input-icon-wrap" style="flex:1;min-width:180px;">
+              <i class="fas fa-search icon-left"></i>
+              <input type="text" class="form-input" id="mapSearch" placeholder="Buscar mapa ou usuário…" oninput="filterMaps()" style="background:var(--color-fog);">
+            </div>
+            <select class="form-select" id="mapTypeFilter" onchange="filterMaps()" style="width:130px;background:var(--color-fog);">
+              <option value="">Todos os tipos</option>
+              <option value="GeoPDF">GeoPDF</option>
+              <option value="GeoTIFF">GeoTIFF</option>
+              <option value="KML">KML</option>
+              <option value="GeoJSON">GeoJSON</option>
+              <option value="Shapefile">Shapefile</option>
+            </select>
+            <select class="form-select" id="mapGeorefFilter" onchange="filterMaps()" style="width:150px;background:var(--color-fog);">
+              <option value="">Georreferenciado?</option>
+              <option value="sim">Sim</option>
+              <option value="não">Não</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="goToMapUpload()">
+              <i class="fas fa-file-import"></i> Novo Upload
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mapa</th>
+                  <th>Usuário</th>
+                  <th>Tipo</th>
+                  <th>Tamanho</th>
+                  <th style="text-align:center;">Georref.</th>
+                  <th>Data</th>
+                  <th>Visibilidade</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="adminMapsBody">
+                <!-- Rendered by admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== ACTIVITY ====== -->
+      <div id="tabActivity" style="display:none;">
+        <!-- Filter bar atividade -->
+        <div class="card mb-4" style="padding:var(--space-3) var(--space-5);">
+          <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap;">
+            <div class="input-icon-wrap" style="flex:1;min-width:180px;">
+              <i class="fas fa-search icon-left"></i>
+              <input type="text" class="form-input" id="activitySearch" placeholder="Buscar por usuário ou ação…" oninput="filterActivity()" style="background:var(--color-fog);">
+            </div>
+            <select class="form-select" id="activityTypeFilter" onchange="filterActivity()" style="width:150px;background:var(--color-fog);">
+              <option value="">Todos os tipos</option>
+              <option value="sync">Sincronização</option>
+              <option value="map">Mapa</option>
+              <option value="track">Trilha</option>
+              <option value="point">Waypoint</option>
+              <option value="photo">Foto</option>
+              <option value="export">Exportação</option>
+              <option value="share">Compartilhamento</option>
+            </select>
+            <button class="btn btn-ghost btn-sm" onclick="exportLog()">
+              <i class="fas fa-download"></i> Exportar log
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0;" id="activityLog">
+            <!-- Rendered by admin.js -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== STORAGE ====== -->
+      <div id="tabStorage" style="display:none;">
+        <div class="grid grid-4 gap-4 mb-6">
+          <div class="stat-card green">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon green"><i class="fas fa-hdd"></i></div>
+              <span class="stat-trend flat"><i class="fas fa-minus"></i> 1 TB limite</span>
+            </div>
+            <div class="stat-value">248 GB</div>
+            <div class="stat-label">Total usado (24.8%)</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon blue"><i class="fas fa-server"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +12 GB semana</span>
+            </div>
+            <div class="stat-value">752 GB</div>
+            <div class="stat-label">Armazenamento livre</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon orange"><i class="fas fa-file-pdf"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +87 MB semana</span>
+            </div>
+            <div class="stat-value">198 GB</div>
+            <div class="stat-label">Mapas PDF/TIFF</div>
+          </div>
+          <div class="stat-card">
+            <div class="flex items-center justify-between">
+              <div class="stat-icon teal"><i class="fas fa-camera"></i></div>
+              <span class="stat-trend up"><i class="fas fa-arrow-up"></i> +1.2 GB semana</span>
+            </div>
+            <div class="stat-value">42 GB</div>
+            <div class="stat-label">Fotos georreferenciadas</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Uso de Armazenamento por Usuário</h5>
+          </div>
+          <div class="card-body" style="height:300px;position:relative;">
+            <canvas id="storageChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card mt-5">
+          <div class="card-header">
+            <h5 style="font-weight:700;color:var(--color-petroleum);">Distribuição por Tipo de Arquivo</h5>
+            <span class="badge badge-gray" style="font-family:var(--font-mono);">248 GB / 1 TB</span>
+          </div>
+          <div class="card-body" id="storageTypeBars">
+            <!-- Rendered by admin.js renderStorageBars() -->
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<style>
+.admin-tabs-bar {
+  display: flex;
+  gap: var(--space-2);
+  background: white;
+  padding: 6px;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 20px;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-gray-dark);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  background: none;
+}
+.admin-tab:hover { background: var(--color-fog); color: var(--color-petroleum); }
+.admin-tab.active { background: var(--gradient-primary); color: white; }
+.admin-tab i { font-size: 13px; }
+
+.activity-log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-fog);
+  transition: background var(--transition-fast);
+}
+.activity-log-item:last-child { border-bottom: none; }
+.activity-log-item:hover { background: var(--color-fog); }
+
+.al-dot {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.al-content { flex: 1; min-width: 0; }
+.al-text { font-size: var(--text-sm); color: var(--color-black-soft); line-height: 1.5; }
+.al-time { font-size: var(--text-xs); color: var(--color-gray-mid); margin-top: 2px; font-family: var(--font-mono); }
+</style>
+
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+<!-- Toda a lógica está em js/admin.js -->
+</body>
+</html>

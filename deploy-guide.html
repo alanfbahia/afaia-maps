@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Afaia Maps – Guia de Deploy & Publicação</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <style>
+    pre { white-space: pre-wrap; word-break: break-all; }
+    .copy-btn { cursor: pointer; transition: all .15s; }
+    .copy-btn:hover { opacity: .8; }
+    .copy-btn:active { transform: scale(.95); }
+    .step-done { text-decoration: line-through; opacity: .5; }
+    code { font-family: 'Fira Code', 'Courier New', monospace; }
+    .tab-btn.active { background: #2563eb; color: #fff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #1e293b; }
+    ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    .check-item input:checked + label { text-decoration: line-through; opacity: .5; }
+    .check-item input:checked ~ .step-badge { background: #16a34a; }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+<!-- ── Header ───────────────────────────────────────────── -->
+<div class="bg-slate-800 border-b border-slate-700 px-6 py-4 flex items-center gap-4 sticky top-0 z-50">
+  <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+    <i class="fa fa-map text-white text-sm"></i>
+  </div>
+  <div>
+    <h1 class="font-bold text-base">Afaia Maps — Guia de Deploy & Publicação</h1>
+    <p class="text-xs text-slate-400">Roteiro operacional completo · 2026-03-08</p>
+  </div>
+  <div class="ml-auto flex items-center gap-2 text-xs text-slate-400">
+    <span id="done-count" class="bg-green-900 text-green-300 px-2 py-0.5 rounded-full font-mono">0/0</span>
+    <span>concluídos</span>
+  </div>
+</div>
+
+<!-- ── Navegação ─────────────────────────────────────────── -->
+<div class="bg-slate-800 border-b border-slate-700 px-4 py-2 flex gap-1 overflow-x-auto">
+  <button onclick="showTab('checklist')"   class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">① Checklist</button>
+  <button onclick="showTab('env')"          class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">② Variáveis ENV</button>
+  <button onclick="showTab('migrate')"      class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">③ Migração DB</button>
+  <button onclick="showTab('cors')"         class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">④ CORS</button>
+  <button onclick="showTab('vps')"          class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">⑤ Hostinger VPS</button>
+  <button onclick="showTab('railway')"      class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">⑥ Railway+Neon+Vercel</button>
+  <button onclick="showTab('tests')"        class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">⑦ Testes pós-deploy</button>
+  <button onclick="showTab('mbtiles-test')" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">⑧ Validar MBTiles</button>
+  <button onclick="showTab('capacitor')"    class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-700 whitespace-nowrap">⑨ Build Capacitor</button>
+</div>
+
+<div class="max-w-4xl mx-auto px-4 py-6">
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 1: CHECKLIST -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-checklist" class="tab-content active space-y-6">
+
+  <div class="bg-blue-950 border border-blue-800 rounded-xl p-4 text-sm text-blue-200">
+    <i class="fa fa-info-circle mr-2"></i>
+    Marque cada item como concluído durante o deploy. O progresso é salvo automaticamente.
+  </div>
+
+  <!-- Bloco: Pré-requisitos -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center gap-2">
+      <i class="fa fa-clipboard-check text-blue-400"></i> A — Pré-requisitos Locais
+    </div>
+    <div class="p-4 space-y-2">
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Node.js <code class="bg-slate-700 px-1 rounded">≥ 20.0.0</code> instalado <code class="bg-slate-700 px-1 rounded text-xs">node --version</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Git configurado e repositório inicializado</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Conta Railway criada em <a href="https://railway.app" target="_blank" class="text-blue-400 underline">railway.app</a> <em>(ou VPS Hostinger configurada)</em></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Conta Neon.tech criada em <a href="https://neon.tech" target="_blank" class="text-blue-400 underline">neon.tech</a> (banco gratuito)</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Conta Vercel criada em <a href="https://vercel.com" target="_blank" class="text-blue-400 underline">vercel.com</a> (frontend gratuito)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Bloco: Backend -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center gap-2">
+      <i class="fa fa-server text-green-400"></i> B — Backend (arquivos a publicar)
+    </div>
+    <div class="p-4 space-y-2">
+      <p class="text-xs text-slate-400 mb-3">Publique a pasta <code class="bg-slate-700 px-1 rounded">backend/</code> como root directory no Railway/VPS. Não inclua <code class="bg-slate-700 px-1 rounded">node_modules/</code>.</p>
+      <div class="font-mono text-xs bg-slate-900 rounded-lg p-3 text-green-300 leading-relaxed">
+backend/<br>
+├── src/<br>
+│   ├── index.js<br>
+│   ├── db/<br>
+│   │   ├── schema.sql ← migração<br>
+│   │   └── client.js<br>
+│   ├── middleware/<br>
+│   │   ├── auth.js<br>
+│   │   └── upload.js<br>
+│   ├── routes/<br>
+│   │   ├── auth.js · maps.js · tiles.js<br>
+│   │   ├── tracks.js · waypoints.js<br>
+│   │   ├── projects.js · sync.js<br>
+│   │   ├── photos.js · admin.js<br>
+│   └── modules/<br>
+│       ├── mbtiles/cache.js<br>
+│       ├── mbtiles/metadata.js<br>
+│       └── geodpf/<br>
+├── package.json ← inclui better-sqlite3<br>
+├── Dockerfile<br>
+└── .env ← <strong>NÃO commitar, configurar no painel</strong>
+      </div>
+      <label class="check-item flex items-start gap-3 cursor-pointer mt-3">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Todos os arquivos acima presentes no repositório</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm"><code class="bg-slate-700 px-1 rounded">.env</code> NÃO está no git (<code class="bg-slate-700 px-1 rounded">.gitignore</code> inclui <code class="bg-slate-700 px-1 rounded">backend/.env</code>)</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Pasta <code class="bg-slate-700 px-1 rounded">uploads/</code> existe no servidor (criada pelo Dockerfile: <code class="bg-slate-700 px-1 rounded">RUN mkdir -p uploads</code>)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Bloco: Frontend -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center gap-2">
+      <i class="fa fa-globe text-purple-400"></i> C — Frontend (arquivos a publicar)
+    </div>
+    <div class="p-4 space-y-2">
+      <p class="text-xs text-slate-400 mb-3">Publique a pasta <code class="bg-slate-700 px-1 rounded">frontend/</code> como diretório raiz no Vercel/Nginx. Esta é também o <code class="bg-slate-700 px-1 rounded">webDir</code> do Capacitor.</p>
+      <div class="font-mono text-xs bg-slate-900 rounded-lg p-3 text-purple-300 leading-relaxed">
+frontend/<br>
+├── index.html<br>
+├── login.html<br>
+├── app.html ← mapa principal<br>
+├── maps-library.html ← biblioteca MBTiles<br>
+├── manifest.json ← PWA completo<br>
+├── sw.js ← Service Worker v3<br>
+├── icons/<br>
+│   ├── icon.svg<br>
+│   ├── icon-maskable.svg<br>
+│   └── icon-*.png ← gerados por scripts/generate-icons.js<br>
+├── css/<br>
+│   ├── app.css<br>
+│   └── mobile.css<br>
+└── js/<br>
+    ├── api.js · auth.js · db.js<br>
+    ├── map.js · tracks.js · waypoints.js<br>
+    ├── sync.js · capacitor.js<br>
+    └── mbtiles.js ← integração Leaflet+MBTiles
+      </div>
+      <label class="check-item flex items-start gap-3 cursor-pointer mt-3">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Gerar ícones PNG: <code class="bg-slate-700 px-1 rounded">cd afaia-maps && npm install sharp && node scripts/generate-icons.js</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Atualizar <code class="bg-slate-700 px-1 rounded">window.AFAIA_API_URL</code> nos HTMLs com a URL real da API</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm"><code class="bg-slate-700 px-1 rounded">manifest.json</code> — verificar <code class="bg-slate-700 px-1 rounded">start_url</code> e <code class="bg-slate-700 px-1 rounded">scope</code> com domínio real</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm"><code class="bg-slate-700 px-1 rounded">sw.js</code> está sendo servido com <code class="bg-slate-700 px-1 rounded">Content-Type: application/javascript</code></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Bloco: Banco -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center gap-2">
+      <i class="fa fa-database text-yellow-400"></i> D — Banco de Dados (Neon.tech)
+    </div>
+    <div class="p-4 space-y-2">
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Projeto criado no Neon.tech, banco chamado <code class="bg-slate-700 px-1 rounded">afaiamaps</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">PostGIS habilitado: <code class="bg-slate-700 px-1 rounded">CREATE EXTENSION postgis;</code> executado</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Migration executada: <code class="bg-slate-700 px-1 rounded">psql $DATABASE_URL -f backend/src/db/schema.sql</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Connection string copiada para variável <code class="bg-slate-700 px-1 rounded">DATABASE_URL</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Primeiro usuário admin criado via SQL após deploy</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Bloco: Pós-deploy -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center gap-2">
+      <i class="fa fa-check-circle text-green-400"></i> E — Validação Pós-Deploy
+    </div>
+    <div class="p-4 space-y-2">
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Health check: <code class="bg-slate-700 px-1 rounded">GET /health</code> retorna <code class="bg-slate-700 px-1 rounded">{"status":"ok","db":"connected"}</code></span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">PWA instalável: Chrome → menu ⋮ → "Instalar Afaia Maps"</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">HTTPS ativo (obrigatório para Service Worker e GPS)</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Cadastro e login funcionando, token JWT gerado</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Upload de MBTiles testado, tile endpoint retornando PNG</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">GPS ativo no mapa (permitir localização no browser)</span>
+      </label>
+      <label class="check-item flex items-start gap-3 cursor-pointer">
+        <input type="checkbox" class="mt-0.5 w-4 h-4 rounded accent-blue-500" data-check>
+        <span class="text-sm">Offline testado: desligar Wi-Fi, recarregar app — deve funcionar</span>
+      </label>
+    </div>
+  </div>
+
+</div><!-- /tab-checklist -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 2: VARIÁVEIS ENV -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-env" class="tab-content space-y-6">
+
+  <div class="bg-red-950 border border-red-800 rounded-xl p-4 text-sm text-red-200">
+    <i class="fa fa-exclamation-triangle mr-2"></i>
+    <strong>Nunca commite o .env no git.</strong> Configure as variáveis diretamente no painel do Railway/VPS.
+  </div>
+
+  <!-- Variáveis obrigatórias -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm flex items-center justify-between">
+      <span><i class="fa fa-lock text-red-400 mr-2"></i>Variáveis Obrigatórias — Backend</span>
+      <button onclick="copyCode('env-required')" class="copy-btn text-xs bg-slate-600 px-2 py-1 rounded">
+        <i class="fa fa-copy mr-1"></i>Copiar
+      </button>
+    </div>
+    <pre id="env-required" class="p-4 text-sm font-mono text-green-300 leading-relaxed">
+# ── BANCO DE DADOS (Neon.tech) ──────────────────────────────
+# Copie da página "Connection Details" no Neon dashboard
+DATABASE_URL=postgresql://USER:PASS@ep-XXXX.us-east-2.aws.neon.tech/afaiamaps?sslmode=require
+
+# ── SERVIDOR ──────────────────────────────────────────────
+PORT=3000
+NODE_ENV=production
+
+# ── CORS ── URL exata do frontend (sem barra final) ────────
+FRONTEND_URL=https://afaiamaps.vercel.app
+
+# ── JWT ── GERE uma chave segura ───────────────────────────
+# Gerar: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+JWT_SECRET=cole_aqui_string_de_128_caracteres_hex
+JWT_EXPIRES_IN=7d
+
+# ── UPLOAD ───────────────────────────────────────────────
+UPLOAD_DIR=/app/uploads
+MAX_FILE_SIZE_MB=5120</pre>
+  </div>
+
+  <!-- Variáveis opcionais -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-sliders text-blue-400 mr-2"></i>Variáveis Opcionais
+    </div>
+    <pre class="p-4 text-sm font-mono text-slate-300 leading-relaxed">
+# ── EMAIL (recuperação de senha) ─────────────────────────
+SMTP_HOST=smtp.mailgun.org
+SMTP_PORT=587
+SMTP_USER=seu@email.com
+SMTP_PASS=sua_senha_smtp
+EMAIL_FROM=noreply@afaiamaps.com</pre>
+  </div>
+
+  <!-- Como gerar JWT_SECRET -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-key text-yellow-400 mr-2"></i>Como gerar JWT_SECRET seguro
+    </div>
+    <div class="p-4 space-y-3">
+      <p class="text-sm text-slate-400">Execute um dos comandos abaixo no terminal:</p>
+      <div class="relative">
+        <pre id="jwt-gen1" class="bg-slate-900 p-3 rounded-lg text-sm text-yellow-300">node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"</pre>
+        <button onclick="copyCode('jwt-gen1')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+      <div class="relative">
+        <pre id="jwt-gen2" class="bg-slate-900 p-3 rounded-lg text-sm text-yellow-300">openssl rand -hex 64</pre>
+        <button onclick="copyCode('jwt-gen2')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variável de API URL no frontend -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-code text-purple-400 mr-2"></i>Configurar URL da API no Frontend
+    </div>
+    <div class="p-4 space-y-3">
+      <p class="text-sm text-slate-400">Adicione este bloco no <code class="bg-slate-700 px-1 rounded">&lt;head&gt;</code> de todos os HTMLs do frontend:</p>
+      <div class="relative">
+        <pre id="api-url-config" class="bg-slate-900 p-3 rounded-lg text-sm text-purple-300">&lt;script&gt;
+  // Altere para a URL real do seu backend
+  window.AFAIA_API_URL = 'https://afaia-maps-api.up.railway.app/api/v1';
+&lt;/script&gt;</pre>
+        <button onclick="copyCode('api-url-config')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-env -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 3: MIGRAÇÃO DB -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-migrate" class="tab-content space-y-6">
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-database text-yellow-400 mr-2"></i>Passo 1 — Criar banco no Neon.tech
+    </div>
+    <div class="p-4 space-y-3 text-sm">
+      <ol class="list-decimal list-inside space-y-2 text-slate-300">
+        <li>Acesse <a href="https://console.neon.tech" target="_blank" class="text-blue-400 underline">console.neon.tech</a></li>
+        <li>Crie um novo projeto → nome: <code class="bg-slate-700 px-1 rounded">afaiamaps</code></li>
+        <li>Na aba <strong>SQL Editor</strong>, execute:</li>
+      </ol>
+      <div class="relative">
+        <pre id="neon-init" class="bg-slate-900 p-3 rounded-lg text-sm text-yellow-300">-- Habilitar extensões (execute no SQL Editor do Neon)
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;</pre>
+        <button onclick="copyCode('neon-init')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+      <ol class="list-decimal list-inside space-y-2 text-slate-300" start="4">
+        <li>Vá em <strong>Connection Details</strong> → copie a <em>connection string</em> (formato: <code class="bg-slate-700 px-1 rounded text-xs">postgresql://user:pass@ep-xxx.neon.tech/afaiamaps?sslmode=require</code>)</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-terminal text-green-400 mr-2"></i>Passo 2 — Executar migração (schema completo)
+    </div>
+    <div class="p-4 space-y-3 text-sm">
+      <p class="text-slate-400">Com a connection string em mãos, execute localmente:</p>
+      <div class="relative">
+        <pre id="migrate-cmd1" class="bg-slate-900 p-3 rounded-lg text-sm text-green-300">
+# Opção A: psql direto (requer psql instalado)
+psql "postgresql://USER:PASS@ep-xxx.neon.tech/afaiamaps?sslmode=require" \
+  -f backend/src/db/schema.sql
+
+# Opção B: via npm script (após configurar .env)
+cd backend
+echo "DATABASE_URL=postgresql://..." > .env
+npm run migrate
+
+# Opção C: Cole o conteúdo do schema.sql no SQL Editor do Neon
+# (cole o arquivo inteiro na interface web)</pre>
+        <button onclick="copyCode('migrate-cmd1')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-user-shield text-blue-400 mr-2"></i>Passo 3 — Criar primeiro usuário admin
+    </div>
+    <div class="p-4 space-y-3">
+      <p class="text-sm text-slate-400">Após o deploy, cadastre pelo app e depois promova via SQL:</p>
+      <div class="relative">
+        <pre id="admin-sql" class="bg-slate-900 p-3 rounded-lg text-sm text-blue-300">-- Promover usuário a admin (substitua o email)
+UPDATE users
+SET role = 'admin'
+WHERE email = 'seu@email.com';</pre>
+        <button onclick="copyCode('admin-sql')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-check text-green-400 mr-2"></i>Verificar tabelas criadas
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="verify-sql" class="bg-slate-900 p-3 rounded-lg text-sm text-green-300">-- Verificar todas as tabelas (esperado: 11+)
+SELECT tablename FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY tablename;
+
+-- Esperado:
+-- geodpf_jobs · maps · photos · project_members
+-- projects · sync_queue · track_points · tracks
+-- users · waypoints</pre>
+        <button onclick="copyCode('verify-sql')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-migrate -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 4: CORS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-cors" class="tab-content space-y-6">
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-shield-alt text-blue-400 mr-2"></i>Configuração CORS Final (backend/src/index.js)
+    </div>
+    <div class="p-4 space-y-3">
+      <p class="text-sm text-slate-400">Atualize o array <code class="bg-slate-700 px-1 rounded">origin</code> com os domínios reais:</p>
+      <div class="relative">
+        <pre id="cors-config" class="bg-slate-900 p-3 rounded-lg text-sm text-blue-300">app.use('*', cors({
+  origin: [
+    // ─── Produção ─────────────────────────────────────
+    'https://afaiamaps.vercel.app',          // Vercel (frontend)
+    'https://www.seudominio.com',            // domínio próprio (se tiver)
+    'https://afaiamaps.com',                 // domínio próprio
+
+    // ─── Capacitor (apps nativos) ─────────────────────
+    'capacitor://localhost',                 // iOS Capacitor
+    'http://localhost',                      // Android Capacitor
+    'https://app.afaiamaps.com',             // hostname do capacitor.config
+
+    // ─── Desenvolvimento local ─────────────────────────
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://localhost:80',
+    'http://127.0.0.1:5173',
+  ],
+  allowMethods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowHeaders: ['Content-Type','Authorization','X-Device-ID'],
+  exposeHeaders: ['X-SW-Cache'],
+  credentials: true,
+  maxAge: 86400,
+}));</pre>
+        <button onclick="copyCode('cors-config')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-semibold text-sm">
+      <i class="fa fa-server text-green-400 mr-2"></i>CORS no Nginx (VPS)
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="nginx-cors" class="bg-slate-900 p-3 rounded-lg text-sm text-green-300">
+# Adicionar ao bloco /api/ no nginx.conf
+location /api/ {
+    proxy_pass http://localhost:3000/api/;
+
+    # CORS headers para o Nginx também (caso API retorne erro antes do app)
+    add_header 'Access-Control-Allow-Origin'  '$http_origin' always;
+    add_header 'Access-Control-Allow-Methods' 'GET,POST,PUT,PATCH,DELETE,OPTIONS' always;
+    add_header 'Access-Control-Allow-Headers' 'Content-Type,Authorization,X-Device-ID' always;
+    add_header 'Access-Control-Allow-Credentials' 'true' always;
+
+    if ($request_method = 'OPTIONS') {
+        add_header 'Access-Control-Max-Age' 86400;
+        return 204;
+    }
+}
+
+# Tiles MBTiles — CORS aberto (tiles são públicos por ID)
+location /tiles/ {
+    proxy_pass http://localhost:3000/tiles/;
+    add_header 'Access-Control-Allow-Origin' '*' always;
+    add_header 'Cache-Control' 'public, max-age=2592000' always;
+    proxy_cache_valid 200 30d;
+}</pre>
+        <button onclick="copyCode('nginx-cors')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-amber-950 border border-amber-700 rounded-xl p-4 text-sm text-amber-200">
+    <i class="fa fa-exclamation-circle mr-2"></i>
+    <strong>Regra para tiles:</strong> O endpoint <code class="bg-amber-900 px-1 rounded">/tiles/:id/:z/:x/:y.png</code> usa <code class="bg-amber-900 px-1 rounded">Access-Control-Allow-Origin: *</code> porque o Leaflet carrega tiles como recursos de imagem (sem credenciais). Os endpoints <code class="bg-amber-900 px-1 rounded">/api/v1/*</code> usam origem restrita + credentials.
+  </div>
+
+</div><!-- /tab-cors -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 5: HOSTINGER VPS -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-vps" class="tab-content space-y-6">
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 font-bold text-sm">
+      <i class="fa fa-server text-orange-400 mr-2"></i>Deploy Completo — Hostinger VPS
+    </div>
+    <div class="p-4 text-sm text-slate-300 space-y-1">
+      <p>Requisitos mínimos: <strong>VPS KVM2</strong> (2 vCPU, 8 GB RAM, Ubuntu 22.04 LTS)</p>
+      <p class="text-slate-400">Custo ~$15/mês. Inclui backend + frontend + banco + MBTiles storage.</p>
+    </div>
+  </div>
+
+  <!-- Passo 1 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 1 — Preparar o VPS</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step1" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Conecte via SSH
+ssh root@SEU_IP_VPS
+
+# Atualizar sistema
+apt update && apt upgrade -y
+
+# Instalar dependências
+apt install -y curl git nginx certbot python3-certbot-nginx postgresql-client ufw
+
+# Instalar Node.js 20 (via nvm)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+source ~/.bashrc
+nvm install 20
+nvm use 20
+node --version   # v20.x.x ✓
+
+# Instalar PM2 (gerenciador de processos)
+npm install -g pm2
+
+# Instalar Docker (para rodar PostGIS localmente)
+curl -fsSL https://get.docker.com | sh
+docker --version   # Docker 24.x ✓</pre>
+        <button onclick="copyCode('vps-step1')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 2 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 2 — Clonar projeto e configurar</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step2" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Clonar repositório
+cd /var/www
+git clone https://github.com/SEU_USER/afaia-maps.git
+cd afaia-maps
+
+# Configurar .env do backend
+cp backend/.env.example backend/.env
+nano backend/.env
+# ─── Edite as variáveis:
+# DATABASE_URL=postgresql://...neon.tech/afaiamaps?sslmode=require
+# JWT_SECRET=sua_chave_segura_128chars
+# FRONTEND_URL=https://seudominio.com
+# NODE_ENV=production
+# PORT=3000
+# UPLOAD_DIR=/var/www/afaia-maps/uploads
+# MAX_FILE_SIZE_MB=5120
+
+# Instalar dependências do backend
+cd backend
+npm install --production
+
+# Criar pasta de uploads
+mkdir -p /var/www/afaia-maps/uploads
+chmod 755 /var/www/afaia-maps/uploads
+
+# Executar migração do banco
+npm run migrate   # ou: psql $DATABASE_URL -f src/db/schema.sql</pre>
+        <button onclick="copyCode('vps-step2')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 3 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 3 — Iniciar backend com PM2</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step3" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Iniciar API com PM2
+cd /var/www/afaia-maps/backend
+pm2 start src/index.js --name "afaia-api" --env production
+
+# Salvar configuração do PM2 (reinicia após reboot)
+pm2 save
+pm2 startup   # Copie e execute o comando gerado
+
+# Verificar status
+pm2 status
+pm2 logs afaia-api --lines 20
+
+# Teste rápido
+curl http://localhost:3000/health
+# Esperado: {"status":"ok","db":"connected"}</pre>
+        <button onclick="copyCode('vps-step3')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 4 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 4 — Configurar Nginx (frontend + proxy API)</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step4" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Criar config Nginx
+cat > /etc/nginx/sites-available/afaiamaps &lt;&lt;'EOF'
+server {
+    listen 80;
+    server_name seudominio.com www.seudominio.com;
+
+    # Frontend PWA
+    root /var/www/afaia-maps/frontend;
+    index index.html;
+
+    # Service Worker sem cache
+    location = /sw.js {
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+        add_header Content-Type "application/javascript";
+    }
+
+    # Manifest sem cache
+    location = /manifest.json {
+        add_header Cache-Control "no-cache";
+    }
+
+    # Assets estáticos com cache longo
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # SPA fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Proxy API
+    location /api/ {
+        proxy_pass http://localhost:3000/api/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        client_max_body_size 5500M;
+        proxy_read_timeout 300s;
+    }
+
+    # Proxy Tiles MBTiles
+    location /tiles/ {
+        proxy_pass http://localhost:3000/tiles/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Cache-Control' 'public, max-age=2592000' always;
+        proxy_cache_valid 200 30d;
+        proxy_read_timeout 30s;
+    }
+
+    # Uploads (arquivos MBTiles, PDFs)
+    location /uploads/ {
+        proxy_pass http://localhost:3000/uploads/;
+        proxy_read_timeout 60s;
+    }
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
+}
+EOF
+
+ln -s /etc/nginx/sites-available/afaiamaps /etc/nginx/sites-enabled/
+nginx -t && systemctl reload nginx</pre>
+        <button onclick="copyCode('vps-step4')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 5 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 5 — HTTPS com Certbot (Let's Encrypt)</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step5" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Apontar DNS antes: A record seudominio.com → IP_DO_VPS
+
+# Gerar certificado SSL
+certbot --nginx -d seudominio.com -d www.seudominio.com
+
+# Verificar renovação automática
+certbot renew --dry-run
+
+# Configurar firewall
+ufw allow 22/tcp    # SSH
+ufw allow 80/tcp    # HTTP
+ufw allow 443/tcp   # HTTPS
+ufw enable
+ufw status</pre>
+        <button onclick="copyCode('vps-step5')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 6 -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-semibold">Passo 6 — Atualizar frontend com URL real da API</div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="vps-step6" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# Adicionar configuração de API URL em todos os HTMLs
+# Execute no diretório raiz do projeto
+cd /var/www/afaia-maps
+
+# Adiciona window.AFAIA_API_URL antes do &lt;/head&gt; em todos os HTMLs do frontend
+for f in frontend/*.html; do
+  sed -i 's|</head>|<script>window.AFAIA_API_URL="https://seudominio.com/api/v1";</script>\n</head>|' "$f"
+done
+
+echo "✅ API URL configurada em todos os HTMLs"</pre>
+        <button onclick="copyCode('vps-step6')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-vps -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 6: RAILWAY + NEON + VERCEL -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-railway" class="tab-content space-y-6">
+
+  <div class="grid grid-cols-3 gap-3 text-center text-xs">
+    <div class="bg-slate-800 rounded-xl p-3">
+      <i class="fa fa-train text-purple-400 text-2xl mb-2 block"></i>
+      <p class="font-bold">Railway</p><p class="text-slate-400">Backend API</p><p class="text-green-400">$5/mês</p>
+    </div>
+    <div class="bg-slate-800 rounded-xl p-3">
+      <i class="fa fa-database text-green-400 text-2xl mb-2 block"></i>
+      <p class="font-bold">Neon.tech</p><p class="text-slate-400">PostgreSQL+PostGIS</p><p class="text-green-400">Free tier</p>
+    </div>
+    <div class="bg-slate-800 rounded-xl p-3">
+      <i class="fa fa-triangle text-white text-2xl mb-2 block"></i>
+      <p class="font-bold">Vercel</p><p class="text-slate-400">Frontend PWA</p><p class="text-green-400">Free tier</p>
+    </div>
+  </div>
+
+  <!-- Railway -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-purple-900 text-sm font-bold">
+      <i class="fa fa-train mr-2"></i>① Railway — Deploy do Backend
+    </div>
+    <div class="p-4 space-y-3 text-sm">
+      <ol class="list-decimal list-inside space-y-3 text-slate-300">
+        <li>Acesse <a href="https://railway.app/new" target="_blank" class="text-purple-400 underline">railway.app/new</a> → "Deploy from GitHub repo"</li>
+        <li>Selecione o repositório <code class="bg-slate-700 px-1 rounded">afaia-maps</code></li>
+        <li>Configure em <strong>Settings → Build</strong>:
+          <div class="relative mt-2">
+            <pre id="railway-config" class="bg-slate-900 p-3 rounded-lg text-xs text-purple-300">Root Directory:  backend
+Build Command:   npm install
+Start Command:   node src/index.js
+Health Check:    /health</pre>
+            <button onclick="copyCode('railway-config')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+        <li>Em <strong>Variables</strong>, adicione todas as variáveis obrigatórias da aba ENV</li>
+        <li>Em <strong>Settings → Networking</strong>, gere um domínio público (ex: <code class="bg-slate-700 px-1 rounded text-xs">afaia-api.up.railway.app</code>)</li>
+        <li>Aguarde o deploy — verifique <code class="bg-slate-700 px-1 rounded">https://afaia-api.up.railway.app/health</code></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Neon -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-green-900 text-sm font-bold">
+      <i class="fa fa-database mr-2"></i>② Neon.tech — Banco de Dados
+    </div>
+    <div class="p-4 space-y-3 text-sm">
+      <ol class="list-decimal list-inside space-y-2 text-slate-300">
+        <li>Crie conta em <a href="https://neon.tech" target="_blank" class="text-green-400 underline">neon.tech</a></li>
+        <li>Novo projeto → nome: <strong>afaiamaps</strong> → região: <strong>US East (N. Virginia)</strong> <em>(mesma do Railway para menor latência)</em></li>
+        <li>No <strong>SQL Editor</strong>, execute:
+          <div class="relative mt-2">
+            <pre id="neon-extensions" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS postgis_topology;</pre>
+            <button onclick="copyCode('neon-extensions')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+        <li>Cole e execute o conteúdo completo de <code class="bg-slate-700 px-1 rounded">backend/src/db/schema.sql</code></li>
+        <li>Copie a <strong>Connection String</strong> → cole no Railway como <code class="bg-slate-700 px-1 rounded">DATABASE_URL</code></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Vercel -->
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-globe mr-2"></i>③ Vercel — Frontend PWA
+    </div>
+    <div class="p-4 space-y-3 text-sm">
+      <ol class="list-decimal list-inside space-y-2 text-slate-300">
+        <li>Acesse <a href="https://vercel.com/new" target="_blank" class="text-blue-400 underline">vercel.com/new</a> → importe o repositório</li>
+        <li>Configure:
+          <div class="relative mt-2">
+            <pre id="vercel-config" class="bg-slate-900 p-3 rounded-lg text-xs text-slate-300">Root Directory:      frontend
+Framework Preset:    Other
+Build Command:       (vazio — sem build step)
+Output Directory:    .   (ponto = raiz do frontend/)</pre>
+            <button onclick="copyCode('vercel-config')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+        <li>Adicione o arquivo <code class="bg-slate-700 px-1 rounded">frontend/vercel.json</code>:
+          <div class="relative mt-2">
+            <pre id="vercel-json" class="bg-slate-900 p-3 rounded-lg text-xs text-slate-300">{
+  "headers": [
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+        { "key": "Content-Type",  "value": "application/javascript" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
+    },
+    {
+      "source": "/(.*\\.(?:js|css|png|jpg|ico|svg|woff2))",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ],
+  "rewrites": [
+    { "source": "/((?!api|tiles|uploads).*)", "destination": "/index.html" }
+  ]
+}</pre>
+            <button onclick="copyCode('vercel-json')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+        <li>Deploy → obtenha a URL (ex: <code class="bg-slate-700 px-1 rounded text-xs">afaiamaps.vercel.app</code>)</li>
+        <li>Volte ao Railway e atualize <code class="bg-slate-700 px-1 rounded">FRONTEND_URL=https://afaiamaps.vercel.app</code></li>
+        <li>Atualize o CORS no <code class="bg-slate-700 px-1 rounded">backend/src/index.js</code> e faça redeploy</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Vercel.json para criar -->
+  <div class="bg-amber-950 border border-amber-700 rounded-xl p-4 text-sm text-amber-200">
+    <i class="fa fa-lightbulb mr-2"></i>
+    <strong>Ação necessária:</strong> Crie o arquivo <code class="bg-amber-900 px-1 rounded">frontend/vercel.json</code> com o conteúdo acima antes do deploy no Vercel. Ele garante que o Service Worker seja servido com o Content-Type correto.
+  </div>
+
+</div><!-- /tab-railway -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 7: TESTES PÓS-DEPLOY -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-tests" class="tab-content space-y-6">
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-flask text-blue-400 mr-2"></i>Roteiro de Testes — Executar em Ordem
+    </div>
+    <div class="p-4 space-y-4">
+
+      <!-- Teste 1: Health check -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-green-400">TEST 1 — API Health Check</div>
+        <div class="p-3 space-y-2">
+          <div class="relative">
+            <pre id="test1" class="bg-slate-900 p-2 rounded text-xs text-green-300">curl https://SUA_API/health
+# Esperado: {"status":"ok","db":"connected","ts":"2026-..."}</pre>
+            <button onclick="copyCode('test1')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teste 2: Cadastro -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-blue-400">TEST 2 — Cadastro + Login</div>
+        <div class="p-3 space-y-2">
+          <div class="relative">
+            <pre id="test2" class="bg-slate-900 p-2 rounded text-xs text-blue-300">
+# Cadastro
+curl -X POST https://SUA_API/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Teste","email":"teste@email.com","password":"Senha123!"}'
+# Esperado: {"token":"eyJ...","user":{...}}
+
+# Login
+curl -X POST https://SUA_API/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"teste@email.com","password":"Senha123!"}'
+# Esperado: {"token":"eyJ..."}
+# Salve o token para os próximos testes</pre>
+            <button onclick="copyCode('test2')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teste 3: Listar mapas -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-yellow-400">TEST 3 — Autenticação JWT</div>
+        <div class="p-3">
+          <div class="relative">
+            <pre id="test3" class="bg-slate-900 p-2 rounded text-xs text-yellow-300">
+TOKEN="eyJ..."   # do login anterior
+
+curl https://SUA_API/api/v1/maps \
+  -H "Authorization: Bearer $TOKEN"
+# Esperado: {"data":[],"total":0}</pre>
+            <button onclick="copyCode('test3')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teste 4: PWA -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-purple-400">TEST 4 — PWA Instalabilidade</div>
+        <div class="p-3 space-y-2 text-sm text-slate-300">
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Abra <code class="bg-slate-700 px-1 rounded text-xs">https://seudominio.com</code> no Chrome (mobile ou desktop)</li>
+            <li>DevTools → Application → Manifest → verificar sem erros</li>
+            <li>DevTools → Application → Service Workers → Status: <strong>activated and running</strong></li>
+            <li>Lighthouse → PWA → Score ≥ 90</li>
+            <li>Chrome (Android/iOS): banner "Instalar Afaia Maps" deve aparecer</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Teste 5: Service Worker -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-green-400">TEST 5 — Service Worker Offline</div>
+        <div class="p-3 space-y-2 text-sm text-slate-300">
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Acesse o app e aguarde carregar completamente</li>
+            <li>DevTools → Network → marque <strong>Offline</strong></li>
+            <li>Recarregue a página → app deve carregar normalmente do cache</li>
+            <li>DevTools → Application → Cache Storage → verificar caches: <code class="bg-slate-700 px-1 rounded text-xs">afaia-v3-static</code>, <code class="bg-slate-700 px-1 rounded text-xs">afaia-v3-tiles</code></li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Teste 6: GPS -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-orange-400">TEST 6 — GPS no Celular</div>
+        <div class="p-3 space-y-2 text-sm text-slate-300">
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Acesse o app no celular (via HTTPS — obrigatório para GPS)</li>
+            <li>Abra o mapa → toque no botão de localização</li>
+            <li>Permita acesso à localização quando solicitado</li>
+            <li>Pino azul deve aparecer na sua posição real</li>
+            <li>Inicie uma trilha → percorra alguns metros → pause → verifique pontos registrados</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Teste 7: Upload MBTiles -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-red-400">TEST 7 — Upload MBTiles</div>
+        <div class="p-3 space-y-2">
+          <div class="relative">
+            <pre id="test7" class="bg-slate-900 p-2 rounded text-xs text-red-300">
+# Teste com arquivo MBTiles pequeno (ex: área local)
+curl -X POST https://SUA_API/api/v1/maps/upload \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "file=@mapa-teste.mbtiles" \
+  -F "name=Mapa Teste"
+
+# Esperado:
+# { "id":"uuid", "file_type":"mbtiles",
+#   "min_zoom":8, "max_zoom":15,
+#   "mbtiles_info":{"tileCount":1234, "tileUrl":"/tiles/uuid/{z}/{x}/{y}.png"} }
+
+# Testar tile individual
+MAP_ID="uuid-retornado-acima"
+curl -I "https://SUA_API/tiles/$MAP_ID/10/500/300.png"
+# Esperado: HTTP 200, Content-Type: image/png</pre>
+            <button onclick="copyCode('test7')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Teste 8: CORS -->
+      <div class="border border-slate-600 rounded-lg overflow-hidden">
+        <div class="bg-slate-700 px-3 py-2 text-xs font-bold text-cyan-400">TEST 8 — CORS do Frontend</div>
+        <div class="p-3">
+          <div class="relative">
+            <pre id="test8" class="bg-slate-900 p-2 rounded text-xs text-cyan-300">
+# Execute no console do browser (na página do frontend)
+fetch('https://SUA_API/health')
+  .then(r => r.json())
+  .then(console.log)
+# Deve retornar {"status":"ok"} sem erro de CORS
+
+# Verificar headers de resposta
+fetch('https://SUA_API/health', {method:'OPTIONS'})
+  .then(r => console.log([...r.headers.entries()]))</pre>
+            <button onclick="copyCode('test8')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /tab-tests -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 8: VALIDAR MBTILES -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-mbtiles-test" class="tab-content space-y-6">
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-map text-blue-400 mr-2"></i>Validação MBTiles — Online
+    </div>
+    <div class="p-4 space-y-4">
+
+      <div class="border border-slate-600 rounded-lg p-3 space-y-2">
+        <p class="text-xs font-bold text-green-400">1. Verificar endpoint /info</p>
+        <div class="relative">
+          <pre id="mb-info" class="bg-slate-900 p-2 rounded text-xs text-green-300">curl https://SUA_API/tiles/MAP_UUID/info \
+  -H "Authorization: Bearer $TOKEN"
+
+# Esperado:
+{
+  "id": "uuid",
+  "name": "Nome do Mapa",
+  "format": "png",
+  "minzoom": 8,
+  "maxzoom": 15,
+  "bounds": [-50.5, -22.0, -49.5, -21.0],
+  "center": [-50.0, -21.5, 12],
+  "tileCount": 1234,
+  "fileSizeFormatted": "45.2 MB",
+  "tileUrl": "/tiles/uuid/{z}/{x}/{y}.png"
+}</pre>
+          <button onclick="copyCode('mb-info')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+        </div>
+      </div>
+
+      <div class="border border-slate-600 rounded-lg p-3 space-y-2">
+        <p class="text-xs font-bold text-blue-400">2. Verificar tile individual</p>
+        <div class="relative">
+          <pre id="mb-tile" class="bg-slate-900 p-2 rounded text-xs text-blue-300">
+# Substitua z/x/y por coordenadas dentro do bounds e zoom do mapa
+curl -I "https://SUA_API/tiles/MAP_UUID/12/1234/567.png"
+
+# Headers esperados:
+# HTTP/2 200
+# content-type: image/png
+# cache-control: public, max-age=2592000
+# access-control-allow-origin: *
+
+# Tile de preview (zoom central)
+curl "https://SUA_API/tiles/MAP_UUID/preview" \
+  -H "Authorization: Bearer $TOKEN" \
+  --output preview.png
+open preview.png   # macOS — verifica visualmente</pre>
+          <button onclick="copyCode('mb-tile')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+        </div>
+      </div>
+
+      <div class="border border-slate-600 rounded-lg p-3 space-y-2">
+        <p class="text-xs font-bold text-yellow-400">3. Verificar no Leaflet (no browser)</p>
+        <div class="relative">
+          <pre id="mb-leaflet" class="bg-slate-900 p-2 rounded text-xs text-yellow-300">
+// Cole no console do DevTools com mapa aberto
+const mapId = 'SEU_MAP_UUID';
+const layer = L.tileLayer(
+  `/tiles/${mapId}/{z}/{x}/{y}.png`,
+  { maxZoom: 18, attribution: 'Offline' }
+).addTo(window._leafletMap || Object.values(L.maps)[0]);
+
+// O mapa deve exibir os tiles do MBTiles imediatamente</pre>
+          <button onclick="copyCode('mb-leaflet')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-wifi-slash text-red-400 mr-2"></i>Validação MBTiles — Offline
+    </div>
+    <div class="p-4 space-y-3">
+      <ol class="list-decimal list-inside space-y-3 text-sm text-slate-300">
+        <li>Faça o upload do MBTiles e carregue-o como base map no app</li>
+        <li>Navegue pelo mapa cobrindo a área do tileset — tiles serão cacheados pelo SW</li>
+        <li>
+          Verifique cache no DevTools:
+          <div class="relative mt-2">
+            <pre id="mb-sw-check" class="bg-slate-900 p-2 rounded text-xs text-red-300">
+// DevTools Console
+const cache = await caches.open('afaia-v3-mbtiles');
+const keys = await cache.keys();
+console.log(`${keys.length} tiles em cache`);
+// Deve mostrar tiles com URL /tiles/uuid/z/x/y.png</pre>
+            <button onclick="copyCode('mb-sw-check')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+        <li>DevTools → Network → marque <strong>Offline</strong></li>
+        <li>Recarregue o app → navegue na área visualizada antes</li>
+        <li>
+          Tiles devem aparecer normalmente — verificar no DevTools Network que requests são servidos por
+          <code class="bg-slate-700 px-1 rounded text-xs">(ServiceWorker)</code>, não da rede
+        </li>
+        <li>
+          Verificar header de cache nos tiles:
+          <div class="relative mt-2">
+            <pre id="mb-sw-header" class="bg-slate-900 p-2 rounded text-xs text-red-300">
+// Requests offline devem ter header X-SW-Cached
+// Verifique na aba Network → selecione tile → Headers:
+// X-SW-Cached: 2026-03-08T12:00:00.000Z   ← offline, veio do cache</pre>
+            <button onclick="copyCode('mb-sw-header')" class="copy-btn absolute top-1 right-1 text-xs bg-slate-700 px-2 py-0.5 rounded"><i class="fa fa-copy"></i></button>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-cache text-purple-400 mr-2"></i>Verificar Cache LRU do Servidor
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="mb-lru" class="bg-slate-900 p-3 rounded-lg text-xs text-purple-300">curl https://SUA_API/tiles/stats \
+  -H "Authorization: Bearer $TOKEN"
+
+# Esperado:
+{
+  "size": 2,
+  "max": 20,
+  "entries": [
+    {
+      "mapId": "uuid-do-mapa",
+      "filePath": "/app/uploads/maps/arquivo.mbtiles",
+      "lastUsed": "2026-03-08T12:00:00.000Z",
+      "idleSecs": 45
+    }
+  ]
+}</pre>
+        <button onclick="copyCode('mb-lru')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-mbtiles-test -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- TAB 9: BUILD CAPACITOR -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div id="tab-capacitor" class="tab-content space-y-6">
+
+  <div class="bg-amber-950 border border-amber-700 rounded-xl p-4 text-sm text-amber-200">
+    <i class="fa fa-exclamation-circle mr-2"></i>
+    <strong>Pré-requisito:</strong> O deploy web/PWA deve estar funcionando antes de gerar o app nativo. O Capacitor empacota o frontend publicado.
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-cog text-blue-400 mr-2"></i>Passo 1 — Preparar frontend com URL de produção
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="cap-step1" class="bg-slate-900 p-3 rounded-lg text-xs text-blue-300">
+# No raiz do projeto (afaia-maps/)
+# Adicionar URL de produção em todos os HTMLs do frontend
+# Edite frontend/index.html, login.html, app.html, maps-library.html
+# Adicione antes de </head>:
+
+&lt;script&gt;
+  window.AFAIA_API_URL = 'https://afaia-api.up.railway.app/api/v1';
+  // ou VPS: 'https://seudominio.com/api/v1'
+&lt;/script&gt;
+
+# Gerar ícones PNG (necessário para Capacitor)
+cd /caminho/para/afaia-maps
+npm install       # instala Capacitor CLI
+npm install sharp # para o gerador de ícones
+node scripts/generate-icons.js</pre>
+        <button onclick="copyCode('cap-step1')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-android text-green-400 mr-2"></i>Passo 2 — Build Android
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="cap-android" class="bg-slate-900 p-3 rounded-lg text-xs text-green-300">
+# 1. Adicionar plataforma Android (só na primeira vez)
+npx cap add android
+
+# 2. Copiar AndroidManifest com permissões corretas
+cp android-config/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+
+# 3. Sincronizar frontend → nativo
+npx cap sync android
+
+# 4. Abrir no Android Studio
+npx cap open android
+# OU executar diretamente no device conectado:
+# npx cap run android
+
+# ── No Android Studio ────────────────────────────────────
+# Build → Generate Signed Bundle/APK
+#   → Android App Bundle (AAB) → para Play Store
+#   → APK               → para instalação direta
+
+# Configuração de assinatura:
+# Key store: android/app/afaia-release.keystore (criar na primeira vez)
+# Key alias: afaia-key
+keytool -genkeypair -v \
+  -keystore android/app/afaia-release.keystore \
+  -alias afaia-key \
+  -keyalg RSA -keysize 2048 \
+  -validity 10000 \
+  -storepass SUA_SENHA \
+  -keypass SUA_SENHA_KEY</pre>
+        <button onclick="copyCode('cap-android')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-apple text-slate-200 mr-2"></i>Passo 3 — Build iOS (requer macOS + Xcode)
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="cap-ios" class="bg-slate-900 p-3 rounded-lg text-xs text-slate-300">
+# 1. Adicionar plataforma iOS (só na primeira vez)
+npx cap add ios
+
+# 2. Copiar Info.plist com permissões
+cp ios-config/Info.plist ios/App/App/Info.plist
+
+# 3. Instalar pods
+cd ios/App && pod install && cd ../..
+
+# 4. Sincronizar
+npx cap sync ios
+
+# 5. Abrir no Xcode
+npx cap open ios
+
+# ── No Xcode ─────────────────────────────────────────────
+# Signing & Capabilities:
+#   → Team: selecione seu Apple Developer Account
+#   → Bundle Identifier: com.afaiamaps.app
+#
+# Product → Archive → Distribute App
+#   → App Store Connect → para publicar na App Store
+#   → Ad Hoc            → para TestFlight / instalação direta</pre>
+        <button onclick="copyCode('cap-ios')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-sync text-yellow-400 mr-2"></i>Atualizações — Workflow pós-publicação
+    </div>
+    <div class="p-4">
+      <div class="relative">
+        <pre id="cap-update" class="bg-slate-900 p-3 rounded-lg text-xs text-yellow-300">
+# Toda vez que atualizar o frontend:
+
+# 1. Edite os arquivos em frontend/
+# 2. Sincronize com nativo
+npx cap sync
+
+# 3. Android: basta rebuildar no Android Studio
+# 4. iOS: basta rebuildar no Xcode
+
+# Atualização sem rebuild nativo (OTA via Service Worker):
+# O SW v3 detecta nova versão automaticamente e atualiza o cache
+# Útil para pequenas correções sem passar pelas lojas
+
+# Verificar versão do SW ativo:
+# DevTools → Application → Service Workers → "Source"</pre>
+        <button onclick="copyCode('cap-update')" class="copy-btn absolute top-2 right-2 text-xs bg-slate-700 px-2 py-1 rounded"><i class="fa fa-copy"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 rounded-xl overflow-hidden">
+    <div class="px-4 py-3 bg-slate-700 text-sm font-bold">
+      <i class="fa fa-list-check text-blue-400 mr-2"></i>Permissões declaradas nos apps
+    </div>
+    <div class="p-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div>
+          <p class="font-bold text-green-400 mb-2"><i class="fa fa-android mr-1"></i>Android (AndroidManifest.xml)</p>
+          <ul class="space-y-1 text-slate-300">
+            <li><code class="bg-slate-700 px-1 rounded">ACCESS_FINE_LOCATION</code> — GPS</li>
+            <li><code class="bg-slate-700 px-1 rounded">ACCESS_COARSE_LOCATION</code> — localiz.</li>
+            <li><code class="bg-slate-700 px-1 rounded">ACCESS_BACKGROUND_LOCATION</code> — trilhas</li>
+            <li><code class="bg-slate-700 px-1 rounded">CAMERA</code> — fotos georreferenciadas</li>
+            <li><code class="bg-slate-700 px-1 rounded">READ/WRITE_EXTERNAL_STORAGE</code> — mapas</li>
+            <li><code class="bg-slate-700 px-1 rounded">INTERNET</code> — sync</li>
+            <li><code class="bg-slate-700 px-1 rounded">FOREGROUND_SERVICE</code> — GPS bg</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-bold text-slate-200 mb-2"><i class="fa fa-apple mr-1"></i>iOS (Info.plist)</p>
+          <ul class="space-y-1 text-slate-300">
+            <li><code class="bg-slate-700 px-1 rounded">NSLocationWhenInUseUsage</code></li>
+            <li><code class="bg-slate-700 px-1 rounded">NSLocationAlwaysUsage</code> — trilhas</li>
+            <li><code class="bg-slate-700 px-1 rounded">NSCameraUsageDescription</code></li>
+            <li><code class="bg-slate-700 px-1 rounded">NSPhotoLibraryUsage</code></li>
+            <li><code class="bg-slate-700 px-1 rounded">location</code> background mode</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-capacitor -->
+
+</div><!-- /max-w container -->
+
+<!-- ── Toast ─────────────────────────────────────────────── -->
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-green-800 text-white px-4 py-2 rounded-xl text-sm shadow-xl hidden z-50">
+  <i class="fa fa-check mr-2"></i>Copiado!
+</div>
+
+<script>
+// ── Tabs ──────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ── Copy to clipboard ─────────────────────────────────────
+function copyCode(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText.trim()).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 1800);
+  });
+}
+
+// ── Checklist persistence ─────────────────────────────────
+const CHECK_KEY = 'afaia_deploy_checklist';
+
+function saveChecks() {
+  const state = {};
+  document.querySelectorAll('[data-check]').forEach((cb, i) => {
+    state[i] = cb.checked;
+  });
+  localStorage.setItem(CHECK_KEY, JSON.stringify(state));
+  updateCounter();
+}
+
+function loadChecks() {
+  try {
+    const state = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}');
+    document.querySelectorAll('[data-check]').forEach((cb, i) => {
+      if (state[i]) cb.checked = true;
+    });
+  } catch {}
+  updateCounter();
+}
+
+function updateCounter() {
+  const all  = document.querySelectorAll('[data-check]').length;
+  const done = document.querySelectorAll('[data-check]:checked').length;
+  document.getElementById('done-count').textContent = `${done}/${all}`;
+}
+
+document.querySelectorAll('[data-check]').forEach(cb => {
+  cb.addEventListener('change', saveChecks);
+});
+
+loadChecks();
+</script>
+</body>
+</html>
