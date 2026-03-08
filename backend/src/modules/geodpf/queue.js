@@ -8,7 +8,8 @@
 //  básicos via análise do PDF. Conversão raster completa
 //  requer ativação do módulo convert.js com GDAL instalado.
 // ============================================================
-import { query } from '../db/client.js';
+
+import { query } from '../../db/client.js';
 import { validateGeoPDF } from './validate.js';
 import { extractMetadata } from './extract.js';
 
@@ -48,8 +49,14 @@ async function runJob(jobId, mapId, userId, filePath) {
          started_at  = CASE WHEN $1 = 'validating' THEN NOW() ELSE started_at END,
          finished_at = CASE WHEN $1 IN ('done','error') THEN NOW() ELSE finished_at END
        WHERE id = $6`,
-      [status, progress, log, extra.error || null,
-       extra.result ? JSON.stringify(extra.result) : null, jobId]
+      [
+        status,
+        progress,
+        log,
+        extra.error || null,
+        extra.result ? JSON.stringify(extra.result) : null,
+        jobId
+      ]
     );
   }
 
@@ -62,6 +69,7 @@ async function runJob(jobId, mapId, userId, filePath) {
     if (!validation.valid) {
       throw new Error(`Arquivo inválido: ${validation.reason}`);
     }
+
     log.push(`[1/4] ✅ Arquivo válido. Tipo: ${validation.type}, Tamanho: ${validation.sizeMB}MB`);
 
     // ── ETAPA 2: Extração de metadados ──────────────────────
@@ -76,8 +84,8 @@ async function runJob(jobId, mapId, userId, filePath) {
     await updateJob('converting', 65);
 
     // STUB – aguardando integração GDAL
-    // const tiles = await convertToTiles(filePath, metadata);
-    await new Promise(r => setTimeout(r, 500)); // simula trabalho
+    await new Promise(r => setTimeout(r, 500));
+
     log.push('[3/4] ⚠️ Conversão GDAL não executada (instale gdal-bin no servidor)');
     log.push('[3/4] ℹ️ PDF está disponível para visualização direta no frontend');
 
@@ -86,17 +94,18 @@ async function runJob(jobId, mapId, userId, filePath) {
     await updateJob('converting', 90);
 
     const result = {
-      crs:           metadata.crs    || 'EPSG:4326',
-      bounds:        metadata.bounds || null,
-      layers:        metadata.layers || [],
-      pageCount:     metadata.pageCount || 1,
+      crs: metadata.crs || 'EPSG:4326',
+      bounds: metadata.bounds || null,
+      layers: metadata.layers || [],
+      pageCount: metadata.pageCount || 1,
       gdal_required: true,
-      gdal_status:   'pending_installation',
+      gdal_status: 'pending_installation'
     };
 
-    // Atualiza mapa com metadados extraídos
     if (metadata.bounds) {
+
       const [minLng, minLat, maxLng, maxLat] = metadata.bounds;
+
       await query(
         `UPDATE maps SET
            is_georeferenced = TRUE,
@@ -105,14 +114,27 @@ async function runJob(jobId, mapId, userId, filePath) {
            geodpf_status    = 'ready',
            geodpf_metadata  = $6
          WHERE id = $7`,
-        [result.crs, minLng, minLat, maxLng, maxLat,
-         JSON.stringify(result), mapId]
+        [
+          result.crs,
+          minLng,
+          minLat,
+          maxLng,
+          maxLat,
+          JSON.stringify(result),
+          mapId
+        ]
       );
+
     } else {
+
       await query(
-        `UPDATE maps SET geodpf_status = 'ready', geodpf_metadata = $1 WHERE id = $2`,
+        `UPDATE maps SET
+           geodpf_status = 'ready',
+           geodpf_metadata = $1
+         WHERE id = $2`,
         [JSON.stringify(result), mapId]
       );
+
     }
 
     log.push('[4/4] ✅ Processamento concluído!');
@@ -121,7 +143,9 @@ async function runJob(jobId, mapId, userId, filePath) {
     console.log(`[GEODPF] Job ${jobId} concluído com sucesso`);
 
   } catch (err) {
+
     log.push(`[ERRO] ${err.message}`);
+
     await updateJob('error', 0, { error: err.message });
 
     await query(
