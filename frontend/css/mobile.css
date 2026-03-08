@@ -1,0 +1,254 @@
+/* ============================================================
+   AFAIA MAPS – mobile.css
+   Ajustes nativos: safe areas, notch, status bar, gestos
+   Importar DEPOIS de app.css
+   ============================================================ */
+
+/* ── Safe Area (notch / home indicator iOS) ──────────────── */
+:root {
+  --sat: env(safe-area-inset-top,    0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left,   0px);
+  --sar: env(safe-area-inset-right,  0px);
+
+  /* Altura real da barra de status Android/iOS */
+  --status-bar-h: var(--sat);
+  /* Nav inferior + home indicator */
+  --nav-safe-h:   calc(var(--bottom-nav-h) + var(--sab));
+}
+
+/* ── Body nativo – remove bounce scroll ──────────────────── */
+body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  /* Evita texto selecionável acidentalmente */
+  -webkit-user-select: none;
+  user-select: none;
+  /* Previne zoom no double-tap */
+  touch-action: manipulation;
+}
+
+/* Inputs e textareas precisam de seleção */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ── Status bar overlay (Capacitor) ──────────────────────── */
+.app-shell,
+.map-page {
+  padding-top: var(--sat);
+}
+
+.sidebar {
+  padding-top: var(--sat);
+}
+
+/* ── Bottom Navigation com home indicator ────────────────── */
+.bottom-nav {
+  height: calc(var(--bottom-nav-h) + var(--sab));
+  padding-bottom: var(--sab);
+}
+
+/* Ajusta conteúdo para não ficar atrás do nav ────────────── */
+.main-content {
+  padding-bottom: calc(var(--bottom-nav-h) + var(--sab) + .5rem);
+}
+
+/* ── Track HUD acima do nav ──────────────────────────────── */
+.track-hud {
+  bottom: calc(var(--bottom-nav-h) + var(--sab) + .75rem);
+}
+
+/* ── Map page full height ─────────────────────────────────── */
+.map-page {
+  height: 100dvh;
+  height: calc(100vh - var(--sat));
+}
+
+/* ── Capacitor WebView full screen ────────────────────────── */
+@media all and (display-mode: standalone) {
+  .app-shell,
+  .map-page,
+  .auth-body {
+    padding-top: var(--sat);
+  }
+
+  .auth-body {
+    /* evita conteúdo atrás da status bar */
+    padding-top: calc(var(--sat) + 1rem);
+  }
+}
+
+/* ── iOS específico ───────────────────────────────────────── */
+@supports (-webkit-touch-callout: none) {
+  /* Remove tap highlight azul */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* Prevents callout on long press */
+  a, img, button { -webkit-touch-callout: none; }
+
+  /* Scroll inércia nativo */
+  .main-content,
+  .sidebar-nav {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Arredondamento dos cantos em fullscreen */
+  .map-page #map {
+    border-radius: 0;
+  }
+}
+
+/* ── Android específico ───────────────────────────────────── */
+@media (pointer: coarse) {
+  /* Alvos de toque maiores */
+  .nav-item,
+  .bn-item,
+  .map-btn,
+  .btn-primary,
+  .btn-ghost,
+  .btn-icon,
+  .list-item {
+    min-height: 48px;
+  }
+
+  .btn-primary,
+  .btn-ghost {
+    padding-top: .85rem;
+    padding-bottom: .85rem;
+  }
+
+  /* Esconde scrollbar no mobile */
+  ::-webkit-scrollbar { display: none; }
+  scrollbar-width: none;
+}
+
+/* ── Swipe navigation hint ────────────────────────────────── */
+.swipe-hint {
+  position: fixed;
+  bottom: calc(var(--nav-safe-h) + .5rem);
+  left: 50%; transform: translateX(-50%);
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(8px);
+  border-radius: 100px;
+  padding: .35rem 1rem;
+  font-size: .75rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInOut 3s ease 1s forwards;
+}
+@keyframes fadeInOut {
+  0%   { opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ── Modals em tela cheia no mobile ──────────────────────── */
+@media (max-width: 480px) {
+  .modal {
+    align-items: flex-end;
+  }
+  .modal-card {
+    border-radius: 20px 20px 0 0;
+    padding-bottom: calc(1.5rem + var(--sab));
+    max-height: 85dvh;
+    overflow-y: auto;
+  }
+
+  /* Arraste indicator no topo do modal */
+  .modal-card::before {
+    content: '';
+    display: block;
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: .75rem auto .25rem;
+  }
+
+  .auth-card {
+    border-radius: 20px 20px 0 0;
+    padding-bottom: calc(2rem + var(--sab));
+  }
+}
+
+/* ── Splash screen overlay (transição inicial) ───────────── */
+#splashOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0f172a;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity .5s ease;
+}
+#splashOverlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+.splash-icon {
+  width: 96px; height: 96px;
+  background: var(--primary);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem; color: #fff;
+  box-shadow: 0 0 60px rgba(37,99,235,.4);
+  margin-bottom: 1.5rem;
+  animation: splashPop .6s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes splashPop {
+  0%   { transform: scale(.5); opacity: 0; }
+  100% { transform: scale(1);  opacity: 1; }
+}
+.splash-name {
+  font-size: 1.75rem; font-weight: 700;
+  animation: splashFade .5s ease .3s both;
+}
+.splash-sub {
+  font-size: .9rem; color: var(--text-muted);
+  margin-top: .35rem;
+  animation: splashFade .5s ease .5s both;
+}
+@keyframes splashFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Pull to refresh indicator ────────────────────────────── */
+.pull-to-refresh {
+  display: flex; align-items: center; justify-content: center;
+  height: 60px; margin-top: -60px;
+  color: var(--text-muted); font-size: .85rem; gap: .5rem;
+  transition: margin-top .2s ease;
+}
+.pull-to-refresh.visible { margin-top: 0; }
+
+/* ── Conexão nativa (widescreen tablet) ──────────────────── */
+@media (min-width: 900px) and (display-mode: standalone) {
+  .bottom-nav { display: none; }
+  .sidebar    { display: flex; }
+  .main-content { padding-bottom: .5rem; }
+}
+
+/* ── Landscape (celular deitado) ─────────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .bottom-nav { display: none; }
+  .track-hud  { bottom: .75rem; }
+  .map-controls { top: calc(var(--sat) + .5rem); }
+}
+
+/* ── High contrast / acessibilidade ─────────────────────── */
+@media (prefers-contrast: high) {
+  :root {
+    --border: #64748b;
+    --text-muted: #cbd5e1;
+  }
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

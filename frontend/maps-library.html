@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Biblioteca de Mapas – Afaia Maps</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#2563eb', dark: '#1d4ed8', light: '#3b82f6' },
+            surface: { DEFAULT: '#0f172a', card: '#1e293b', border: '#334155' }
+          }
+        }
+      },
+      darkMode: 'class'
+    }
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --safe-top:    env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left:   env(safe-area-inset-left, 0px);
+      --safe-right:  env(safe-area-inset-right, 0px);
+    }
+    body { padding-top: var(--safe-top); padding-bottom: var(--safe-bottom); }
+
+    .map-card { transition: all 0.2s ease; }
+    .map-card:hover { transform: translateY(-2px); }
+    .map-card.active-base { border-color: #2563eb; box-shadow: 0 0 0 2px #2563eb40; }
+
+    .badge-mbtiles { background: #1d4ed8; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
+    .badge-geopdf  { background: #7c3aed; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
+    .badge-gpx     { background: #059669; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
+    .badge-geojson { background: #d97706; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 999px; }
+
+    #mini-map { height: 180px; width: 100%; border-radius: 8px; z-index: 1; }
+
+    .opacity-slider { -webkit-appearance: none; appearance: none; height: 4px; outline: none; background: #334155; border-radius: 2px; }
+    .opacity-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: #2563eb; border-radius: 50%; cursor: pointer; }
+    .opacity-slider::-moz-range-thumb { width: 16px; height: 16px; background: #2563eb; border-radius: 50%; cursor: pointer; border: none; }
+
+    .upload-zone { border: 2px dashed #334155; transition: border-color 0.2s, background 0.2s; }
+    .upload-zone.drag-over { border-color: #2563eb; background: #1e293b; }
+
+    .progress-bar { transition: width 0.3s ease; }
+    .modal-overlay { background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); }
+  </style>
+</head>
+<body class="dark bg-surface text-slate-100 min-h-screen flex flex-col">
+
+<!-- ── Header ──────────────────────────────────────────── -->
+<header class="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-surface-border px-4 py-3 flex items-center gap-3">
+  <a href="/app.html" class="text-slate-400 hover:text-white transition-colors">
+    <i class="fa fa-arrow-left text-lg"></i>
+  </a>
+  <div class="flex-1">
+    <h1 class="font-bold text-base leading-tight">Biblioteca de Mapas</h1>
+    <p class="text-xs text-slate-400" id="map-count">Carregando...</p>
+  </div>
+  <button onclick="openUploadModal()" class="bg-brand text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+    <i class="fa fa-upload text-xs"></i> Importar
+  </button>
+</header>
+
+<!-- ── Filtros ───────────────────────────────────────────── -->
+<div class="px-4 py-3 border-b border-surface-border flex gap-2 overflow-x-auto scrollbar-none">
+  <button data-filter="all"      class="filter-btn active px-3 py-1.5 rounded-full text-xs font-medium bg-brand text-white whitespace-nowrap">Todos</button>
+  <button data-filter="mbtiles"  class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium bg-surface-card text-slate-300 whitespace-nowrap">MBTiles</button>
+  <button data-filter="geopdf"   class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium bg-surface-card text-slate-300 whitespace-nowrap">GeoPDF</button>
+  <button data-filter="gpx"      class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium bg-surface-card text-slate-300 whitespace-nowrap">GPX/KML</button>
+  <button data-filter="geojson"  class="filter-btn px-3 py-1.5 rounded-full text-xs font-medium bg-surface-card text-slate-300 whitespace-nowrap">GeoJSON</button>
+</div>
+
+<!-- ── Mini mapa de preview ──────────────────────────────── -->
+<div class="px-4 pt-4" id="preview-map-container" style="display:none">
+  <div class="bg-surface-card rounded-xl overflow-hidden">
+    <div id="mini-map"></div>
+    <div class="p-3 flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium" id="preview-name">—</p>
+        <p class="text-xs text-slate-400" id="preview-meta">—</p>
+      </div>
+      <button onclick="goToMap()" class="bg-brand text-white px-3 py-1.5 rounded-lg text-xs font-medium">
+        <i class="fa fa-map-location-dot mr-1"></i>Abrir no Mapa
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Lista de mapas ────────────────────────────────────── -->
+<main class="flex-1 px-4 py-4">
+  <div id="maps-grid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+  <!-- Estado vazio -->
+  <div id="empty-state" class="hidden text-center py-16 text-slate-400">
+    <i class="fa fa-map text-5xl mb-4 opacity-30"></i>
+    <p class="text-lg font-medium">Nenhum mapa encontrado</p>
+    <p class="text-sm mt-1">Importe um arquivo MBTiles, GeoPDF, GPX ou GeoJSON</p>
+    <button onclick="openUploadModal()" class="mt-4 bg-brand text-white px-5 py-2.5 rounded-xl text-sm font-medium">
+      <i class="fa fa-upload mr-2"></i>Importar Primeiro Mapa
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div id="loading-state" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+    <div class="bg-surface-card rounded-xl p-4 animate-pulse h-36"></div>
+    <div class="bg-surface-card rounded-xl p-4 animate-pulse h-36"></div>
+    <div class="bg-surface-card rounded-xl p-4 animate-pulse h-36"></div>
+  </div>
+</main>
+
+<!-- ── Modal de Upload ───────────────────────────────────── -->
+<div id="upload-modal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 hidden">
+  <div class="bg-surface-card rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+    <!-- Header do modal -->
+    <div class="px-5 py-4 border-b border-surface-border flex items-center justify-between">
+      <h2 class="font-bold text-base">Importar Mapa</h2>
+      <button onclick="closeUploadModal()" class="text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="p-5 space-y-4">
+      <!-- Zona de drop -->
+      <div id="upload-zone" class="upload-zone rounded-xl p-6 text-center cursor-pointer"
+           onclick="document.getElementById('file-input').click()"
+           ondragover="handleDragOver(event)"
+           ondragleave="handleDragLeave(event)"
+           ondrop="handleDrop(event)">
+        <i class="fa fa-cloud-upload-alt text-3xl text-slate-500 mb-2 block"></i>
+        <p class="text-sm font-medium text-slate-300">Arraste o arquivo ou clique para selecionar</p>
+        <p class="text-xs text-slate-500 mt-1">.mbtiles · .gpx · .kml · .geojson · .pdf</p>
+        <input id="file-input" type="file" class="hidden"
+               accept=".mbtiles,.gpx,.kml,.kmz,.geojson,.json,.pdf,.tif,.tiff"
+               onchange="handleFileSelected(event)">
+      </div>
+
+      <!-- Info do arquivo selecionado -->
+      <div id="file-info" class="hidden bg-surface rounded-xl p-3 flex items-center gap-3">
+        <i class="fa fa-file-alt text-brand text-xl"></i>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate" id="file-name">—</p>
+          <p class="text-xs text-slate-400" id="file-size">—</p>
+        </div>
+        <button onclick="clearFile()" class="text-slate-400 hover:text-white">
+          <i class="fa fa-times-circle"></i>
+        </button>
+      </div>
+
+      <!-- Campos opcionais -->
+      <div class="space-y-3">
+        <input id="map-name-input" type="text" placeholder="Nome do mapa (opcional)"
+               class="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand">
+        <input id="map-tags-input" type="text" placeholder="Tags (separadas por vírgula)"
+               class="w-full bg-surface border border-surface-border rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-brand">
+      </div>
+
+      <!-- Barra de progresso -->
+      <div id="upload-progress" class="hidden">
+        <div class="flex justify-between text-xs text-slate-400 mb-1">
+          <span id="progress-label">Enviando...</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="bg-surface rounded-full h-2 overflow-hidden">
+          <div id="progress-bar" class="progress-bar bg-brand h-2 rounded-full" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Botões -->
+      <div class="flex gap-3">
+        <button onclick="closeUploadModal()" class="flex-1 bg-surface border border-surface-border text-slate-300 py-3 rounded-xl text-sm font-medium">
+          Cancelar
+        </button>
+        <button id="upload-btn" onclick="submitUpload()" disabled
+                class="flex-1 bg-brand text-white py-3 rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fa fa-upload mr-2"></i>Importar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal de detalhes MBTiles ──────────────────────────── -->
+<div id="details-modal" class="modal-overlay fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 hidden">
+  <div class="bg-surface-card rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden">
+    <div class="px-5 py-4 border-b border-surface-border flex items-center justify-between">
+      <h2 class="font-bold text-base" id="details-title">Detalhes</h2>
+      <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+    <div id="details-body" class="p-5 space-y-4 overflow-y-auto max-h-[70vh]"></div>
+  </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
+<div id="toast" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 hidden">
+  <div class="bg-slate-800 text-white px-4 py-2.5 rounded-xl text-sm shadow-xl border border-surface-border">
+    <span id="toast-msg"></span>
+  </div>
+</div>
+
+<script type="module">
+// ── Imports ───────────────────────────────────────────────
+const API_BASE = window.AFAIA_API_URL || '/api/v1';
+
+// Token de autenticação
+function getToken() {
+  return localStorage.getItem('afaia_token') || sessionStorage.getItem('afaia_token');
+}
+
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Authorization': `Bearer ${getToken()}`, ...opts.headers };
+  const resp = await fetch(`${API_BASE}${path}`, { ...opts, headers });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ error: resp.statusText }));
+    throw new Error(err.error || `HTTP ${resp.status}`);
+  }
+  return resp;
+}
+
+// ── Estado ────────────────────────────────────────────────
+let allMaps = [];
+let currentFilter = 'all';
+let selectedFile  = null;
+let miniMap       = null;
+let currentMapId  = null;
+let activeBaseId  = localStorage.getItem('afaia_active_base') || null;
+
+// ── Init ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadMaps();
+  setupFilters();
+});
+
+async function loadMaps() {
+  showLoading(true);
+  try {
+    const resp = await apiFetch('/maps?limit=200');
+    const data = await resp.json();
+    allMaps = data.data || [];
+    renderMaps(currentFilter);
+  } catch (err) {
+    showToast('Erro ao carregar mapas: ' + err.message, 'error');
+    // Tenta IndexedDB como fallback offline
+    loadMapsOffline();
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function loadMapsOffline() {
+  try {
+    const { getAllMaps } = await import('./db.js');
+    allMaps = await getAllMaps() || [];
+    renderMaps(currentFilter);
+  } catch {}
+}
+
+// ── Renderização ──────────────────────────────────────────
+function renderMaps(filter) {
+  const filtered = filter === 'all'
+    ? allMaps
+    : allMaps.filter(m => {
+        if (filter === 'gpx') return ['gpx','kml'].includes(m.file_type);
+        return m.file_type === filter;
+      });
+
+  const grid = document.getElementById('maps-grid');
+  const empty = document.getElementById('empty-state');
+
+  document.getElementById('map-count').textContent =
+    `${filtered.length} mapa${filtered.length !== 1 ? 's' : ''}`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  grid.innerHTML = filtered.map(m => renderMapCard(m)).join('');
+}
+
+function renderMapCard(map) {
+  const isBase   = activeBaseId === map.id;
+  const badgeCls = `badge-${map.file_type}`;
+  const icon     = fileTypeIcon(map.file_type);
+
+  let zoomInfo = '';
+  if (map.min_zoom != null && map.max_zoom != null) {
+    zoomInfo = `<span class="text-xs text-slate-500">Zoom ${map.min_zoom}–${map.max_zoom}</span>`;
+  }
+
+  let sizeInfo = '';
+  if (map.file_size) {
+    sizeInfo = formatFileSize(map.file_size);
+  }
+
+  return `
+  <div class="map-card bg-surface-card border ${isBase ? 'border-brand active-base' : 'border-surface-border'} rounded-xl p-4 cursor-pointer"
+       id="card-${map.id}"
+       onclick="openDetails('${map.id}')">
+    <div class="flex items-start gap-3">
+      <div class="w-10 h-10 rounded-lg bg-surface flex items-center justify-center flex-shrink-0">
+        <i class="fa ${icon} text-brand text-lg"></i>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <h3 class="font-medium text-sm truncate">${escHtml(map.name)}</h3>
+          <span class="${badgeCls}">${map.file_type.toUpperCase()}</span>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          ${zoomInfo}
+          ${sizeInfo ? `<span class="text-xs text-slate-500">${sizeInfo}</span>` : ''}
+          ${isBase ? '<span class="text-xs text-brand font-medium"><i class="fa fa-check-circle mr-1"></i>Base atual</span>' : ''}
+        </div>
+        ${map.tags?.length ? `<div class="mt-2 flex gap-1 flex-wrap">${map.tags.slice(0,3).map(t => `<span class="bg-surface px-2 py-0.5 rounded text-xs text-slate-400">${escHtml(t)}</span>`).join('')}</div>` : ''}
+      </div>
+    </div>
+    ${map.file_type === 'mbtiles' ? `
+    <div class="mt-3 pt-3 border-t border-surface-border flex gap-2">
+      <button onclick="event.stopPropagation(); useAsBase('${map.id}')"
+              class="flex-1 text-xs py-1.5 rounded-lg font-medium ${isBase ? 'bg-brand text-white' : 'bg-surface text-slate-300 hover:text-white'}">
+        <i class="fa fa-layer-group mr-1"></i>${isBase ? 'Base ativa' : 'Usar como base'}
+      </button>
+      <button onclick="event.stopPropagation(); previewMap('${map.id}')"
+              class="text-xs py-1.5 px-3 rounded-lg bg-surface text-slate-300 hover:text-white">
+        <i class="fa fa-eye"></i>
+      </button>
+      <button onclick="event.stopPropagation(); confirmDelete('${map.id}', '${escHtml(map.name)}')"
+              class="text-xs py-1.5 px-3 rounded-lg bg-surface text-red-400 hover:text-red-300">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>` : `
+    <div class="mt-3 pt-3 border-t border-surface-border flex gap-2">
+      <button onclick="event.stopPropagation(); openInMap('${map.id}')"
+              class="flex-1 text-xs py-1.5 rounded-lg bg-surface text-slate-300 hover:text-white font-medium">
+        <i class="fa fa-map-location-dot mr-1"></i>Ver no Mapa
+      </button>
+      <button onclick="event.stopPropagation(); confirmDelete('${map.id}', '${escHtml(map.name)}')"
+              class="text-xs py-1.5 px-3 rounded-lg bg-surface text-red-400 hover:text-red-300">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>`}
+  </div>`;
+}
+
+// ── Detalhes MBTiles ──────────────────────────────────────
+async function openDetails(mapId) {
+  currentMapId = mapId;
+  const map = allMaps.find(m => m.id === mapId);
+  if (!map) return;
+
+  const modal = document.getElementById('details-modal');
+  const body  = document.getElementById('details-body');
+  const title = document.getElementById('details-title');
+
+  title.textContent = map.name;
+  body.innerHTML    = '<div class="text-center py-8"><i class="fa fa-spinner fa-spin text-2xl text-brand"></i></div>';
+  modal.classList.remove('hidden');
+
+  if (map.file_type === 'mbtiles') {
+    try {
+      const resp = await fetch(`${API_BASE.replace('/api/v1', '')}/tiles/${mapId}/info`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` }
+      });
+      const info = await resp.json();
+      body.innerHTML = renderMBTilesDetails(info, map);
+    } catch {
+      body.innerHTML = renderGenericDetails(map);
+    }
+  } else {
+    body.innerHTML = renderGenericDetails(map);
+  }
+}
+
+function renderMBTilesDetails(info, map) {
+  const isBase = activeBaseId === map.id;
+
+  return `
+  <div class="space-y-4">
+    <!-- Stats grid -->
+    <div class="grid grid-cols-2 gap-3">
+      <div class="bg-surface rounded-xl p-3 text-center">
+        <p class="text-2xl font-bold text-brand">${info.minzoom ?? '?'}–${info.maxzoom ?? '?'}</p>
+        <p class="text-xs text-slate-400 mt-1">Níveis de Zoom</p>
+      </div>
+      <div class="bg-surface rounded-xl p-3 text-center">
+        <p class="text-2xl font-bold text-brand">${formatTileCount(info.tileCount)}</p>
+        <p class="text-xs text-slate-400 mt-1">Tiles</p>
+      </div>
+      <div class="bg-surface rounded-xl p-3 text-center">
+        <p class="text-lg font-bold text-brand">${formatFileSize(info.fileSize || map.file_size)}</p>
+        <p class="text-xs text-slate-400 mt-1">Tamanho</p>
+      </div>
+      <div class="bg-surface rounded-xl p-3 text-center">
+        <p class="text-lg font-bold text-brand">${(info.format || 'PNG').toUpperCase()}</p>
+        <p class="text-xs text-slate-400 mt-1">Formato</p>
+      </div>
+    </div>
+
+    <!-- Bounds -->
+    ${info.bounds ? `
+    <div class="bg-surface rounded-xl p-3">
+      <p class="text-xs font-medium text-slate-300 mb-2"><i class="fa fa-draw-polygon mr-2 text-brand"></i>Cobertura Geográfica</p>
+      <p class="text-xs text-slate-400 font-mono">${info.bounds.map(n => n.toFixed(4)).join(', ')}</p>
+    </div>` : ''}
+
+    <!-- Attribution -->
+    ${info.attribution ? `
+    <div class="bg-surface rounded-xl p-3">
+      <p class="text-xs font-medium text-slate-300 mb-1"><i class="fa fa-copyright mr-2 text-brand"></i>Atribuição</p>
+      <p class="text-xs text-slate-400">${escHtml(info.attribution)}</p>
+    </div>` : ''}
+
+    <!-- Tile URL -->
+    <div class="bg-surface rounded-xl p-3">
+      <p class="text-xs font-medium text-slate-300 mb-1"><i class="fa fa-link mr-2 text-brand"></i>URL dos Tiles (Leaflet)</p>
+      <p class="text-xs text-slate-400 font-mono break-all">${info.tileUrl || `/tiles/${map.id}/{z}/{x}/{y}.png`}</p>
+    </div>
+
+    <!-- Opacidade -->
+    <div class="bg-surface rounded-xl p-3">
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs font-medium text-slate-300"><i class="fa fa-adjust mr-2 text-brand"></i>Opacidade</p>
+        <span class="text-xs text-slate-400" id="opacity-val">100%</span>
+      </div>
+      <input type="range" min="0" max="100" value="100" class="opacity-slider w-full"
+             oninput="updateOpacity(this.value, '${map.id}')">
+    </div>
+
+    <!-- Ações -->
+    <div class="flex gap-2">
+      <button onclick="useAsBase('${map.id}'); closeDetailsModal()"
+              class="flex-1 py-3 rounded-xl text-sm font-medium ${isBase ? 'bg-brand text-white' : 'bg-surface border border-surface-border text-slate-300'}">
+        <i class="fa fa-layer-group mr-2"></i>${isBase ? '✓ Base Ativa' : 'Usar como Base'}
+      </button>
+      <button onclick="openInMap('${map.id}')"
+              class="flex-1 py-3 rounded-xl text-sm font-medium bg-brand text-white">
+        <i class="fa fa-map mr-2"></i>Abrir no Mapa
+      </button>
+    </div>
+    <button onclick="confirmDelete('${map.id}', '${escHtml(map.name)}')"
+            class="w-full py-3 rounded-xl text-sm font-medium bg-surface border border-red-900 text-red-400 hover:text-red-300">
+      <i class="fa fa-trash mr-2"></i>Excluir Mapa
+    </button>
+  </div>`;
+}
+
+function renderGenericDetails(map) {
+  return `
+  <div class="space-y-3">
+    <div class="bg-surface rounded-xl p-3 space-y-2">
+      <div class="flex justify-between text-sm">
+        <span class="text-slate-400">Tipo</span>
+        <span class="font-medium">${map.file_type.toUpperCase()}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-slate-400">Tamanho</span>
+        <span class="font-medium">${formatFileSize(map.file_size)}</span>
+      </div>
+      <div class="flex justify-between text-sm">
+        <span class="text-slate-400">Adicionado</span>
+        <span class="font-medium">${new Date(map.created_at).toLocaleDateString('pt-BR')}</span>
+      </div>
+    </div>
+    <button onclick="openInMap('${map.id}')"
+            class="w-full py-3 rounded-xl text-sm font-medium bg-brand text-white">
+      <i class="fa fa-map mr-2"></i>Abrir no Mapa
+    </button>
+    <button onclick="confirmDelete('${map.id}', '${escHtml(map.name)}')"
+            class="w-full py-3 rounded-xl text-sm font-medium bg-surface border border-red-900 text-red-400">
+      <i class="fa fa-trash mr-2"></i>Excluir
+    </button>
+  </div>`;
+}
+
+// ── Usar como mapa base ───────────────────────────────────
+window.useAsBase = function(mapId) {
+  activeBaseId = mapId;
+  localStorage.setItem('afaia_active_base', mapId);
+  localStorage.setItem('afaia_active_base_tile_url',
+    `${(window.AFAIA_API_URL || '/api/v1').replace('/api/v1','')}/tiles/${mapId}/{z}/{x}/{y}.png`
+  );
+  renderMaps(currentFilter);
+  showToast('Mapa definido como base. Abra o mapa para visualizar.', 'success');
+};
+
+// ── Preview no mini mapa ──────────────────────────────────
+window.previewMap = async function(mapId) {
+  const map = allMaps.find(m => m.id === mapId);
+  if (!map) return;
+
+  const container = document.getElementById('preview-map-container');
+  container.style.display = 'block';
+
+  document.getElementById('preview-name').textContent = map.name;
+  document.getElementById('preview-meta').textContent = `Zoom ${map.min_zoom||0}–${map.max_zoom||18}`;
+
+  if (!miniMap) {
+    miniMap = L.map('mini-map', { zoomControl: false, attributionControl: false });
+  } else {
+    miniMap.eachLayer(l => miniMap.removeLayer(l));
+  }
+
+  const tilesBase = (window.AFAIA_API_URL || '/api/v1').replace('/api/v1', '');
+  L.tileLayer(`${tilesBase}/tiles/${mapId}/{z}/{x}/{y}.png`, {
+    maxZoom: map.max_zoom || 18,
+    errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
+  }).addTo(miniMap);
+
+  // Centra no mapa
+  if (map.bounds) {
+    const b = map.bounds.coordinates?.[0];
+    if (b) {
+      const lats = b.map(c => c[1]);
+      const lons = b.map(c => c[0]);
+      miniMap.fitBounds([[Math.min(...lats), Math.min(...lons)], [Math.max(...lats), Math.max(...lons)]]);
+    }
+  } else {
+    miniMap.setView([-15, -50], 4);
+  }
+
+  miniMap.invalidateSize();
+  container.scrollIntoView({ behavior: 'smooth' });
+};
+
+window.goToMap = function() {
+  if (currentMapId) {
+    window.location.href = `/app.html?map=${currentMapId}`;
+  }
+};
+
+window.openInMap = function(mapId) {
+  window.location.href = `/app.html?map=${mapId}`;
+};
+
+// ── Upload ─────────────────────────────────────────────────
+window.openUploadModal  = () => document.getElementById('upload-modal').classList.remove('hidden');
+window.closeUploadModal = () => {
+  document.getElementById('upload-modal').classList.add('hidden');
+  clearFile();
+};
+window.closeDetailsModal = () => document.getElementById('details-modal').classList.add('hidden');
+
+window.handleDragOver = (e) => {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.add('drag-over');
+};
+window.handleDragLeave = () => {
+  document.getElementById('upload-zone').classList.remove('drag-over');
+};
+window.handleDrop = (e) => {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) setFile(file);
+};
+window.handleFileSelected = (e) => {
+  const file = e.target.files[0];
+  if (file) setFile(file);
+};
+
+function setFile(file) {
+  selectedFile = file;
+  document.getElementById('file-info').classList.remove('hidden');
+  document.getElementById('file-name').textContent = file.name;
+  document.getElementById('file-size').textContent = formatFileSize(file.size);
+  document.getElementById('upload-btn').disabled   = false;
+  document.getElementById('map-name-input').placeholder = file.name.replace(/\.[^.]+$/, '');
+}
+
+window.clearFile = function() {
+  selectedFile = null;
+  document.getElementById('file-info').classList.add('hidden');
+  document.getElementById('upload-btn').disabled = true;
+  document.getElementById('file-input').value = '';
+};
+
+window.submitUpload = async function() {
+  if (!selectedFile) return;
+
+  const btn      = document.getElementById('upload-btn');
+  const progress = document.getElementById('upload-progress');
+  const bar      = document.getElementById('progress-bar');
+  const pct      = document.getElementById('progress-pct');
+  const label    = document.getElementById('progress-label');
+
+  btn.disabled = true;
+  progress.classList.remove('hidden');
+
+  const formData = new FormData();
+  formData.append('file', selectedFile);
+
+  const name = document.getElementById('map-name-input').value.trim() ||
+               selectedFile.name.replace(/\.[^.]+$/, '');
+  formData.append('name', name);
+
+  const tags = document.getElementById('map-tags-input').value.trim();
+  if (tags) formData.append('tags', tags);
+
+  try {
+    label.textContent = 'Enviando arquivo...';
+
+    // XMLHttpRequest para rastrear progresso
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const p = Math.round(e.loaded / e.total * 90);
+          bar.style.width = p + '%';
+          pct.textContent = p + '%';
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status === 201) resolve(JSON.parse(xhr.responseText));
+        else reject(new Error(JSON.parse(xhr.responseText)?.error || `HTTP ${xhr.status}`));
+      };
+      xhr.onerror = () => reject(new Error('Erro de rede'));
+      xhr.open('POST', `${API_BASE}/maps/upload`);
+      xhr.setRequestHeader('Authorization', `Bearer ${getToken()}`);
+      xhr.send(formData);
+    });
+
+    label.textContent = 'Processando...';
+    bar.style.width   = '100%';
+    pct.textContent   = '100%';
+
+    await new Promise(r => setTimeout(r, 800));
+
+    showToast(`"${name}" importado com sucesso!`, 'success');
+    closeUploadModal();
+    await loadMaps();
+
+  } catch (err) {
+    showToast('Erro no upload: ' + err.message, 'error');
+    bar.style.width = '0%';
+  } finally {
+    btn.disabled = false;
+    progress.classList.add('hidden');
+  }
+};
+
+// ── Deletar ──────────────────────────────────────────────
+window.confirmDelete = function(mapId, name) {
+  if (!confirm(`Excluir "${name}"? Esta ação não pode ser desfeita.`)) return;
+  deleteMap(mapId, name);
+};
+
+async function deleteMap(mapId, name) {
+  try {
+    await apiFetch(`/maps/${mapId}`, { method: 'DELETE' });
+    allMaps = allMaps.filter(m => m.id !== mapId);
+    if (activeBaseId === mapId) {
+      activeBaseId = null;
+      localStorage.removeItem('afaia_active_base');
+    }
+    renderMaps(currentFilter);
+    closeDetailsModal();
+    showToast(`"${name}" excluído.`);
+  } catch (err) {
+    showToast('Erro ao excluir: ' + err.message, 'error');
+  }
+}
+
+// ── Opacidade ─────────────────────────────────────────────
+window.updateOpacity = function(val, mapId) {
+  document.getElementById('opacity-val').textContent = val + '%';
+  localStorage.setItem(`afaia_opacity_${mapId}`, val);
+};
+
+// ── Filtros ───────────────────────────────────────────────
+function setupFilters() {
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('bg-brand', 'text-white');
+        b.classList.add('bg-surface-card', 'text-slate-300');
+      });
+      btn.classList.add('bg-brand', 'text-white');
+      btn.classList.remove('bg-surface-card', 'text-slate-300');
+      currentFilter = btn.dataset.filter;
+      renderMaps(currentFilter);
+    });
+  });
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function showLoading(show) {
+  document.getElementById('loading-state').classList.toggle('hidden', !show);
+  document.getElementById('maps-grid').classList.toggle('hidden', show);
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  const msgEl = document.getElementById('toast-msg');
+  msgEl.innerHTML = type === 'error'
+    ? `<i class="fa fa-exclamation-circle text-red-400 mr-2"></i>${msg}`
+    : type === 'success'
+    ? `<i class="fa fa-check-circle text-green-400 mr-2"></i>${msg}`
+    : msg;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+function formatFileSize(bytes) {
+  if (!bytes) return '—';
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  if (bytes < 1024*1024*1024) return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  return (bytes/(1024*1024*1024)).toFixed(2) + ' GB';
+}
+
+function formatTileCount(n) {
+  if (!n) return '?';
+  if (n < 1000) return n;
+  if (n < 1_000_000) return (n/1000).toFixed(1)+'K';
+  return (n/1_000_000).toFixed(1)+'M';
+}
+
+function fileTypeIcon(type) {
+  const icons = {
+    mbtiles: 'fa-map',
+    geopdf:  'fa-file-pdf',
+    geotiff: 'fa-image',
+    gpx:     'fa-route',
+    kml:     'fa-map-pin',
+    geojson: 'fa-code',
+    image:   'fa-image',
+  };
+  return icons[type] || 'fa-file';
+}
+
+function escHtml(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Expose para onclick inline
+window.openDetails       = openDetails;
+window.previewMap        = window.previewMap;
+window.goToMap           = window.goToMap;
+</script>
+</body>
+</html>

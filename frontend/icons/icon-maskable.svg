@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Maskable safe zone: keep icon within inner 80% (approx 102..410) -->
+  <!-- Background fill entire canvas -->
+  <rect width="512" height="512" fill="#2563eb"/>
+  <!-- Subtle grid/topo lines for texture -->
+  <path d="M0 350 Q128 320 256 335 Q384 350 512 320" fill="none" stroke="#1d4ed8" stroke-width="6" opacity="0.5"/>
+  <path d="M0 400 Q128 370 256 385 Q384 400 512 370" fill="none" stroke="#1d4ed8" stroke-width="4" opacity="0.4"/>
+  <!-- Map pin -->
+  <circle cx="256" cy="220" r="75" fill="white"/>
+  <circle cx="256" cy="220" r="30" fill="#2563eb"/>
+  <path d="M256 290 L218 365 L256 348 L294 365 Z" fill="white"/>
+</svg>

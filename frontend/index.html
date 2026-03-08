@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Afaia Maps – Mapeamento de campo com GPS offline">
+  <title>Afaia Maps</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="stylesheet" href="/css/app.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="app-body">
+
+  <!-- ── Offline Banner ───────────────────────────────── -->
+  <div id="offlineBanner" class="offline-banner hidden">
+    <i class="fa fa-wifi-slash"></i>
+    Sem conexão — usando dados locais
+  </div>
+
+  <!-- ── App Shell ─────────────────────────────────────── -->
+  <div id="app" class="app-shell">
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon"><i class="fa fa-map-location-dot"></i></div>
+        <span class="logo-text">Afaia Maps</span>
+      </div>
+
+      <div class="sidebar-nav">
+        <a href="/app.html"       class="nav-item" data-page="map">
+          <i class="fa fa-map"></i><span>Mapa</span>
+        </a>
+        <a href="/maps.html"      class="nav-item" data-page="maps">
+          <i class="fa fa-layer-group"></i><span>Biblioteca</span>
+        </a>
+        <a href="/tracks.html"    class="nav-item" data-page="tracks">
+          <i class="fa fa-route"></i><span>Trilhas</span>
+        </a>
+        <a href="/waypoints.html" class="nav-item" data-page="waypoints">
+          <i class="fa fa-map-pin"></i><span>Waypoints</span>
+        </a>
+        <a href="/projects.html"  class="nav-item" data-page="projects">
+          <i class="fa fa-folder-open"></i><span>Projetos</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sync-status" id="syncStatus">
+          <i class="fa fa-circle-check"></i>
+          <span>Sincronizado</span>
+        </div>
+        <a href="/login.html" class="nav-item" id="logoutBtn">
+          <i class="fa fa-right-from-bracket"></i><span>Sair</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <main id="mainContent" class="main-content">
+      <!-- Páginas injetadas aqui por JS ou carregadas diretamente -->
+    </main>
+
+    <!-- Bottom nav (mobile) -->
+    <nav class="bottom-nav" id="bottomNav">
+      <a href="/app.html"       class="bn-item" data-page="map">
+        <i class="fa fa-map"></i><span>Mapa</span>
+      </a>
+      <a href="/maps.html"      class="bn-item" data-page="maps">
+        <i class="fa fa-layer-group"></i><span>Mapas</span>
+      </a>
+      <a href="/tracks.html"    class="bn-item" data-page="tracks">
+        <i class="fa fa-route"></i><span>Trilhas</span>
+      </a>
+      <a href="/waypoints.html" class="bn-item active" data-page="waypoints">
+        <i class="fa fa-map-pin"></i><span>Waypoints</span>
+      </a>
+      <a href="/projects.html"  class="bn-item" data-page="projects">
+        <i class="fa fa-folder"></i><span>Projetos</span>
+      </a>
+    </nav>
+  </div>
+
+  <script src="/js/db.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/sync.js"></script>
+  <script>
+    // Registro do Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('[PWA] SW registrado:', reg.scope))
+        .catch(err => console.warn('[PWA] SW falhou:', err));
+    }
+
+    // Redireciona para login se não autenticado
+    if (!localStorage.getItem('afaia_token') && !location.pathname.includes('login')) {
+      location.href = '/login.html';
+    }
+
+    // Detecta status offline
+    function updateOnlineStatus() {
+      const banner = document.getElementById('offlineBanner');
+      if (banner) banner.classList.toggle('hidden', navigator.onLine);
+    }
+    window.addEventListener('online',  updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+
+    // Marca item ativo na navegação
+    document.querySelectorAll('.nav-item, .bn-item').forEach(el => {
+      if (el.href && location.pathname.includes(el.getAttribute('href'))) {
+        el.classList.add('active');
+      }
+    });
+
+    // Logout
+    document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('afaia_token');
+      localStorage.removeItem('afaia_user');
+      location.href = '/login.html';
+    });
+  </script>
+</body>
+</html>

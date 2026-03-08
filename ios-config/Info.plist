@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  ios-config/Info.plist
+  Permissões e configurações iOS para Afaia Maps
+  Copie os blocos abaixo para ios/App/App/Info.plist após: npx cap add ios
+-->
+<plist version="1.0">
+<dict>
+
+  <!-- ── Identificação ─────────────────────────────── -->
+  <key>CFBundleDisplayName</key>
+  <string>Afaia Maps</string>
+  <key>CFBundleIdentifier</key>
+  <string>com.afaiamaps.app</string>
+  <key>CFBundleVersion</key>
+  <string>1</string>
+  <key>CFBundleShortVersionString</key>
+  <string>1.0.0</string>
+
+  <!-- ── GPS / Localização ─────────────────────────── -->
+  <key>NSLocationWhenInUseUsageDescription</key>
+  <string>O Afaia Maps usa sua localização para mostrar sua posição no mapa e gravar trilhas GPS.</string>
+
+  <key>NSLocationAlwaysUsageDescription</key>
+  <string>O Afaia Maps usa sua localização em segundo plano para gravar trilhas longas sem a tela ligada.</string>
+
+  <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+  <string>O Afaia Maps usa localização em segundo plano para gravação contínua de trilhas GPS no campo.</string>
+
+  <!-- Habilita localização em background -->
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>location</string>
+    <string>fetch</string>
+    <string>processing</string>
+  </array>
+
+  <!-- Precisão do GPS -->
+  <key>NSLocationDefaultAccuracyReduced</key>
+  <false/>
+
+  <!-- ── Câmera e Fotos ─────────────────────────────── -->
+  <key>NSCameraUsageDescription</key>
+  <string>O Afaia Maps usa a câmera para capturar fotos georreferenciadas durante atividades de campo.</string>
+
+  <key>NSPhotoLibraryUsageDescription</key>
+  <string>O Afaia Maps acessa sua galeria para importar fotos e associar a waypoints.</string>
+
+  <key>NSPhotoLibraryAddUsageDescription</key>
+  <string>O Afaia Maps salva fotos de campo na sua galeria.</string>
+
+  <key>NSMicrophoneUsageDescription</key>
+  <string>O Afaia Maps usa o microfone para gravação de notas de voz nos waypoints.</string>
+
+  <!-- ── Arquivos e Armazenamento ───────────────────── -->
+  <key>NSDocumentsFolderUsageDescription</key>
+  <string>O Afaia Maps acessa arquivos para importar mapas GPX, KML, GeoJSON e GeoPDF.</string>
+
+  <key>UIFileSharingEnabled</key>
+  <true/>
+
+  <key>LSSupportsOpeningDocumentsInPlace</key>
+  <true/>
+
+  <!-- Tipos de arquivo suportados -->
+  <key>CFBundleDocumentTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>GPS Exchange Format</string>
+      <key>CFBundleTypeRole</key>
+      <string>Viewer</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>com.topografix.gpx</string>
+        <string>public.xml</string>
+      </array>
+    </dict>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>KML / KMZ</string>
+      <key>CFBundleTypeRole</key>
+      <string>Viewer</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>com.google.earth.kml+xml</string>
+        <string>com.google.earth.kmz</string>
+      </array>
+    </dict>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>GeoJSON</string>
+      <key>CFBundleTypeRole</key>
+      <string>Viewer</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>public.json</string>
+      </array>
+    </dict>
+    <dict>
+      <key>CFBundleTypeName</key>
+      <string>PDF / GeoPDF</string>
+      <key>CFBundleTypeRole</key>
+      <string>Viewer</string>
+      <key>LSItemContentTypes</key>
+      <array>
+        <string>com.adobe.pdf</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- ── URL Schemes (deep links) ──────────────────── -->
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.afaiamaps.app</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>afaiamaps</string>
+      </array>
+    </dict>
+  </array>
+
+  <!-- ── App Transport Security (HTTPS obrigatório) ── -->
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsArbitraryLoads</key>
+    <false/>
+    <!-- Permite tiles HTTP de alguns servidores de mapa -->
+    <key>NSExceptionDomains</key>
+    <dict>
+      <key>tile.openstreetmap.org</key>
+      <dict>
+        <key>NSExceptionAllowsInsecureHTTPLoads</key>
+        <false/>
+        <key>NSIncludesSubdomains</key>
+        <true/>
+      </dict>
+    </dict>
+  </dict>
+
+  <!-- ── Interface ───────────────────────────────────── -->
+  <key>UIStatusBarHidden</key>
+  <false/>
+
+  <key>UIStatusBarStyle</key>
+  <string>UIStatusBarStyleLightContent</string>
+
+  <key>UIViewControllerBasedStatusBarAppearance</key>
+  <true/>
+
+  <key>UIRequiresFullScreen</key>
+  <true/>
+
+  <key>UISupportedInterfaceOrientations</key>
+  <array>
+    <string>UIInterfaceOrientationPortrait</string>
+    <string>UIInterfaceOrientationLandscapeLeft</string>
+    <string>UIInterfaceOrientationLandscapeRight</string>
+  </array>
+
+  <!-- ── Notificações ───────────────────────────────── -->
+  <key>UIUserNotificationSettings</key>
+  <dict>
+    <key>UIUserNotificationTypesAlert</key>
+    <true/>
+    <key>UIUserNotificationTypesBadge</key>
+    <true/>
+    <key>UIUserNotificationTypesSound</key>
+    <true/>
+  </dict>
+
+</dict>
+</plist>

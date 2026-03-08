@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0f172a"/>
+  <!-- Map pin base circle -->
+  <circle cx="256" cy="210" r="90" fill="#2563eb"/>
+  <!-- Map pin hole -->
+  <circle cx="256" cy="210" r="38" fill="#0f172a"/>
+  <!-- Map pin tail -->
+  <path d="M256 290 L210 380 L256 360 L302 380 Z" fill="#2563eb"/>
+  <!-- Signal rings -->
+  <circle cx="256" cy="210" r="120" fill="none" stroke="#3b82f6" stroke-width="8" opacity="0.4"/>
+  <circle cx="256" cy="210" r="148" fill="none" stroke="#3b82f6" stroke-width="5" opacity="0.2"/>
+  <!-- Topographic lines (subtle) -->
+  <path d="M100 400 Q180 370 256 380 Q332 390 420 365" fill="none" stroke="#1e40af" stroke-width="4" opacity="0.5"/>
+  <path d="M80 430 Q180 400 256 412 Q332 424 440 398" fill="none" stroke="#1e40af" stroke-width="3" opacity="0.4"/>
+  <path d="M60 460 Q180 432 256 445 Q332 458 460 430" fill="none" stroke="#1e40af" stroke-width="2" opacity="0.3"/>
+</svg>

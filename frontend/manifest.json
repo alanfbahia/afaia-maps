@@ -1,0 +1,126 @@
+{
+  "name": "Afaia Maps",
+  "short_name": "Afaia",
+  "description": "Mapeamento de campo com GPS offline – trilhas, waypoints e mapas",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "id": "afaia-maps-pwa",
+  "categories": ["navigation", "utilities", "productivity"],
+
+  "icons": [
+    { "src": "/icons/icon-48.png",   "sizes": "48x48",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-72.png",   "sizes": "72x72",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-96.png",   "sizes": "96x96",   "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-128.png",  "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-144.png",  "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-152.png",  "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192.png",  "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-256.png",  "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png",  "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+
+  "screenshots": [
+    {
+      "src": "/screenshots/map.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mapa principal com GPS"
+    },
+    {
+      "src": "/screenshots/tracks.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Gravação de trilhas"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Novo Waypoint",
+      "short_name": "Waypoint",
+      "description": "Marcar ponto atual com GPS",
+      "url": "/app.html?action=waypoint",
+      "icons": [{ "src": "/icons/shortcut-pin.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Gravar Trilha",
+      "short_name": "Trilha",
+      "description": "Iniciar gravação de trilha GPS",
+      "url": "/app.html?action=record",
+      "icons": [{ "src": "/icons/shortcut-track.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Biblioteca de Mapas",
+      "short_name": "Mapas",
+      "description": "Abrir biblioteca de mapas",
+      "url": "/maps.html",
+      "icons": [{ "src": "/icons/shortcut-maps.png", "sizes": "96x96" }]
+    }
+  ],
+
+  "share_target": {
+    "action": "/import",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "file",
+          "accept": [
+            "application/pdf",
+            "application/gpx+xml",
+            ".gpx", ".kml", ".kmz",
+            ".geojson", ".json",
+            "image/tiff", ".tif", ".tiff"
+          ]
+        }
+      ]
+    }
+  },
+
+  "file_handlers": [
+    {
+      "action": "/import",
+      "accept": {
+        "application/gpx+xml":  [".gpx"],
+        "application/vnd.google-earth.kml+xml": [".kml"],
+        "application/vnd.google-earth.kmz":     [".kmz"],
+        "application/geo+json": [".geojson"],
+        "application/json":     [".json"],
+        "application/pdf":      [".pdf"],
+        "image/tiff":           [".tif", ".tiff"]
+      }
+    }
+  ],
+
+  "protocol_handlers": [
+    { "protocol": "geo", "url": "/app.html?geo=%s" }
+  ],
+
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.afaiamaps.app",
+      "id": "com.afaiamaps.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/afaia-maps/id0000000000"
+    }
+  ],
+  "prefer_related_applications": false
+}

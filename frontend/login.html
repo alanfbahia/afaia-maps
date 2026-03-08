@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+                 user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#1e293b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Afaia Maps">
+  <title>Entrar – Afaia Maps</title>
+  <link rel="manifest"         href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-152.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" sizes="192x192">
+  <link rel="icon" href="/icons/icon-96.png" type="image/png">
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/mobile.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="auth-body">
+
+  <div class="auth-container">
+    <div class="auth-card">
+
+      <!-- Logo -->
+      <div class="auth-logo">
+        <div class="auth-logo-icon"><i class="fa fa-map-location-dot"></i></div>
+        <h1>Afaia Maps</h1>
+        <p>Mapeamento de campo inteligente</p>
+      </div>
+
+      <!-- Tabs Login / Cadastro -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Entrar</button>
+        <button class="auth-tab"        data-tab="register">Criar conta</button>
+      </div>
+
+      <!-- ── Login ──────────────────────────────────── -->
+      <form id="loginForm" class="auth-form" autocomplete="on">
+        <div class="form-group">
+          <label for="loginEmail">E-mail</label>
+          <div class="input-icon">
+            <i class="fa fa-envelope"></i>
+            <input id="loginEmail" type="email" name="email"
+                   placeholder="seu@email.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="loginPassword">Senha</label>
+          <div class="input-icon">
+            <i class="fa fa-lock"></i>
+            <input id="loginPassword" type="password" name="password"
+                   placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="toggle-password" tabindex="-1">
+              <i class="fa fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="rememberMe"> Lembrar de mim
+          </label>
+          <a href="#" class="link-small" id="forgotLink">Esqueci a senha</a>
+        </div>
+
+        <div id="loginError" class="form-error hidden"></div>
+
+        <button type="submit" class="btn-primary btn-block" id="loginBtn">
+          <span>Entrar</span>
+          <div class="spinner hidden" id="loginSpinner"></div>
+        </button>
+      </form>
+
+      <!-- ── Cadastro ───────────────────────────────── -->
+      <form id="registerForm" class="auth-form hidden" autocomplete="on">
+        <div class="form-group">
+          <label for="regName">Nome completo</label>
+          <div class="input-icon">
+            <i class="fa fa-user"></i>
+            <input id="regName" type="text" name="name"
+                   placeholder="João Silva" required autocomplete="name">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regEmail">E-mail</label>
+          <div class="input-icon">
+            <i class="fa fa-envelope"></i>
+            <input id="regEmail" type="email" name="email"
+                   placeholder="seu@email.com" required autocomplete="email">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regPassword">Senha</label>
+          <div class="input-icon">
+            <i class="fa fa-lock"></i>
+            <input id="regPassword" type="password" name="password"
+                   placeholder="Mínimo 8 caracteres" required autocomplete="new-password"
+                   minlength="8">
+            <button type="button" class="toggle-password" tabindex="-1">
+              <i class="fa fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="regPasswordConfirm">Confirmar senha</label>
+          <div class="input-icon">
+            <i class="fa fa-lock"></i>
+            <input id="regPasswordConfirm" type="password"
+                   placeholder="Repita a senha" required autocomplete="new-password">
+          </div>
+        </div>
+
+        <div id="registerError" class="form-error hidden"></div>
+
+        <button type="submit" class="btn-primary btn-block" id="registerBtn">
+          <span>Criar conta</span>
+          <div class="spinner hidden" id="registerSpinner"></div>
+        </button>
+      </form>
+
+      <!-- ── Recuperação de senha ───────────────────── -->
+      <form id="forgotForm" class="auth-form hidden">
+        <div class="auth-back">
+          <button type="button" id="backToLogin" class="btn-ghost">
+            <i class="fa fa-arrow-left"></i> Voltar
+          </button>
+        </div>
+        <h3>Recuperar senha</h3>
+        <p class="form-hint">Digite seu e-mail para receber o link de redefinição.</p>
+        <div class="form-group">
+          <div class="input-icon">
+            <i class="fa fa-envelope"></i>
+            <input id="forgotEmail" type="email" placeholder="seu@email.com" required>
+          </div>
+        </div>
+        <div id="forgotMsg" class="form-success hidden"></div>
+        <div id="forgotError" class="form-error hidden"></div>
+        <button type="submit" class="btn-primary btn-block">Enviar link</button>
+      </form>
+
+    </div><!-- /auth-card -->
+  </div><!-- /auth-container -->
+
+  <script src="/js/db.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/capacitor.js"></script>
+  <script>
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+    // Tabs
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab, .auth-form').forEach(el => {
+          el.classList.remove('active');
+          if (el.classList.contains('auth-form')) el.classList.add('hidden');
+        });
+        tab.classList.add('active');
+        const form = document.getElementById(tab.dataset.tab + 'Form');
+        form.classList.remove('hidden');
+      });
+    });
+
+    // Toggle senha visível
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = btn.closest('.input-icon').querySelector('input');
+        const icon  = btn.querySelector('i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.className = 'fa fa-eye-slash';
+        } else {
+          input.type = 'password';
+          icon.className = 'fa fa-eye';
+        }
+      });
+    });
+
+    // Esqueci senha
+    document.getElementById('forgotLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('forgotForm').classList.remove('hidden');
+    });
+    document.getElementById('backToLogin').addEventListener('click', () => {
+      document.getElementById('forgotForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+    });
+
+    // ── Submit Login ──────────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn     = document.getElementById('loginBtn');
+      const spinner = document.getElementById('loginSpinner');
+      const errEl   = document.getElementById('loginError');
+
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      errEl.classList.add('hidden');
+
+      try {
+        const data = await AuthAPI.login(
+          document.getElementById('loginEmail').value,
+          document.getElementById('loginPassword').value,
+          getDeviceId()
+        );
+        localStorage.setItem('afaia_token', data.accessToken);
+        localStorage.setItem('afaia_user',  JSON.stringify(data.user));
+        location.href = '/app.html';
+      } catch (err) {
+        errEl.textContent = err.message || 'Falha ao entrar';
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+      }
+    });
+
+    // ── Submit Cadastro ───────────────────────────────────
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn     = document.getElementById('registerBtn');
+      const spinner = document.getElementById('registerSpinner');
+      const errEl   = document.getElementById('registerError');
+
+      const pwd    = document.getElementById('regPassword').value;
+      const pwdCfm = document.getElementById('regPasswordConfirm').value;
+
+      if (pwd !== pwdCfm) {
+        errEl.textContent = 'As senhas não coincidem';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      btn.disabled = true;
+      spinner.classList.remove('hidden');
+      errEl.classList.add('hidden');
+
+      try {
+        const data = await AuthAPI.register(
+          document.getElementById('regName').value,
+          document.getElementById('regEmail').value,
+          pwd
+        );
+        localStorage.setItem('afaia_token', data.accessToken);
+        localStorage.setItem('afaia_user',  JSON.stringify(data.user));
+        location.href = '/app.html';
+      } catch (err) {
+        errEl.textContent = err.message || 'Falha ao criar conta';
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        spinner.classList.add('hidden');
+      }
+    });
+
+    // ── Submit Recuperação ────────────────────────────────
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('forgotError');
+      const msgEl = document.getElementById('forgotMsg');
+      errEl.classList.add('hidden');
+      msgEl.classList.add('hidden');
+      try {
+        await AuthAPI.forgotPassword(document.getElementById('forgotEmail').value);
+        msgEl.textContent = 'Se o e-mail existir, você receberá as instruções em breve.';
+        msgEl.classList.remove('hidden');
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      }
+    });
+
+    // Gera/recupera deviceId único
+    function getDeviceId() {
+      let id = localStorage.getItem('afaia_device_id');
+      if (!id) {
+        id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem('afaia_device_id', id);
+      }
+      return id;
+    }
+
+    // Se já logado, vai para o app
+    if (localStorage.getItem('afaia_token')) location.href = '/app.html';
+  </script>
+</body>
+</html>
