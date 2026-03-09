@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Afaia Maps">
   <title>Entrar – Afaia Maps</title>
-  <link rel="manifest"         href="/manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-152.png">
   <link rel="apple-touch-icon" href="/icons/icon-192.png" sizes="192x192">
   <link rel="icon" href="/icons/icon-96.png" type="image/png">
@@ -26,20 +26,18 @@
   <div class="auth-container">
     <div class="auth-card">
 
-      <!-- Logo -->
       <div class="auth-logo">
         <div class="auth-logo-icon"><i class="fa fa-map-location-dot"></i></div>
         <h1>Afaia Maps</h1>
         <p>Mapeamento de campo inteligente</p>
       </div>
 
-      <!-- Tabs Login / Cadastro -->
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="login">Entrar</button>
-        <button class="auth-tab"        data-tab="register">Criar conta</button>
+        <button class="auth-tab" data-tab="register">Criar conta</button>
       </div>
 
-      <!-- ── Login ──────────────────────────────────── -->
+      <!-- Login -->
       <form id="loginForm" class="auth-form" autocomplete="on">
         <div class="form-group">
           <label for="loginEmail">E-mail</label>
@@ -77,7 +75,7 @@
         </button>
       </form>
 
-      <!-- ── Cadastro ───────────────────────────────── -->
+      <!-- Cadastro -->
       <form id="registerForm" class="auth-form hidden" autocomplete="on">
         <div class="form-group">
           <label for="regName">Nome completo</label>
@@ -127,7 +125,7 @@
         </button>
       </form>
 
-      <!-- ── Recuperação de senha ───────────────────── -->
+      <!-- Recuperação -->
       <form id="forgotForm" class="auth-form hidden">
         <div class="auth-back">
           <button type="button" id="backToLogin" class="btn-ghost">
@@ -147,37 +145,71 @@
         <button type="submit" class="btn-primary btn-block">Enviar link</button>
       </form>
 
-    </div><!-- /auth-card -->
-  </div><!-- /auth-container -->
+    </div>
+  </div>
 
   <script src="/js/db.js"></script>
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/capacitor.js"></script>
+
   <script>
     // Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
 
+    function getDeviceId() {
+      let id = localStorage.getItem('afaia_device_id');
+      if (!id) {
+        if (window.crypto && crypto.randomUUID) {
+          id = 'dev_' + crypto.randomUUID();
+        } else {
+          id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        }
+        localStorage.setItem('afaia_device_id', id);
+      }
+      return id;
+    }
+
+    function saveSession(data) {
+      if (data.accessToken) {
+        localStorage.setItem('afaia_token', data.accessToken);
+      }
+      if (data.refreshToken) {
+        localStorage.setItem('afaia_refresh_token', data.refreshToken);
+      }
+      if (data.user) {
+        localStorage.setItem('afaia_user', JSON.stringify(data.user));
+      }
+      localStorage.setItem('afaia_device_id', getDeviceId());
+    }
+
+    function getAppRedirect(user) {
+      if (user && user.role === 'admin') {
+        return '/admin.html';
+      }
+      return '/app.html';
+    }
+
     // Tabs
     document.querySelectorAll('.auth-tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        document.querySelectorAll('.auth-tab, .auth-form').forEach(el => {
-          el.classList.remove('active');
-          if (el.classList.contains('auth-form')) el.classList.add('hidden');
-        });
+        document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(el => el.classList.add('hidden'));
+
         tab.classList.add('active');
         const form = document.getElementById(tab.dataset.tab + 'Form');
-        form.classList.remove('hidden');
+        if (form) form.classList.remove('hidden');
       });
     });
 
-    // Toggle senha visível
+    // Mostrar/ocultar senha
     document.querySelectorAll('.toggle-password').forEach(btn => {
       btn.addEventListener('click', () => {
         const input = btn.closest('.input-icon').querySelector('input');
-        const icon  = btn.querySelector('i');
+        const icon = btn.querySelector('i');
+
         if (input.type === 'password') {
           input.type = 'text';
           icon.className = 'fa fa-eye-slash';
@@ -192,33 +224,42 @@
     document.getElementById('forgotLink').addEventListener('click', (e) => {
       e.preventDefault();
       document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.add('hidden');
       document.getElementById('forgotForm').classList.remove('hidden');
+      document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
     });
+
     document.getElementById('backToLogin').addEventListener('click', () => {
       document.getElementById('forgotForm').classList.add('hidden');
       document.getElementById('loginForm').classList.remove('hidden');
+      document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+      document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
     });
 
-    // ── Submit Login ──────────────────────────────────────
+    // Login
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn     = document.getElementById('loginBtn');
+
+      const btn = document.getElementById('loginBtn');
       const spinner = document.getElementById('loginSpinner');
-      const errEl   = document.getElementById('loginError');
+      const errEl = document.getElementById('loginError');
 
       btn.disabled = true;
       spinner.classList.remove('hidden');
       errEl.classList.add('hidden');
+      errEl.textContent = '';
 
       try {
-        const data = await AuthAPI.login(
-          document.getElementById('loginEmail').value,
-          document.getElementById('loginPassword').value,
-          getDeviceId()
-        );
-        localStorage.setItem('afaia_token', data.accessToken);
-        localStorage.setItem('afaia_user',  JSON.stringify(data.user));
-        location.href = '/app.html';
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        const deviceId = getDeviceId();
+
+        const data = await AuthAPI.login(email, password, deviceId);
+
+        saveSession(data);
+
+        location.href = getAppRedirect(data.user);
+
       } catch (err) {
         errEl.textContent = err.message || 'Falha ao entrar';
         errEl.classList.remove('hidden');
@@ -228,14 +269,17 @@
       }
     });
 
-    // ── Submit Cadastro ───────────────────────────────────
+    // Cadastro
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const btn     = document.getElementById('registerBtn');
-      const spinner = document.getElementById('registerSpinner');
-      const errEl   = document.getElementById('registerError');
 
-      const pwd    = document.getElementById('regPassword').value;
+      const btn = document.getElementById('registerBtn');
+      const spinner = document.getElementById('registerSpinner');
+      const errEl = document.getElementById('registerError');
+
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pwd = document.getElementById('regPassword').value;
       const pwdCfm = document.getElementById('regPasswordConfirm').value;
 
       if (pwd !== pwdCfm) {
@@ -247,16 +291,15 @@
       btn.disabled = true;
       spinner.classList.remove('hidden');
       errEl.classList.add('hidden');
+      errEl.textContent = '';
 
       try {
-        const data = await AuthAPI.register(
-          document.getElementById('regName').value,
-          document.getElementById('regEmail').value,
-          pwd
-        );
-        localStorage.setItem('afaia_token', data.accessToken);
-        localStorage.setItem('afaia_user',  JSON.stringify(data.user));
-        location.href = '/app.html';
+        const data = await AuthAPI.register(name, email, pwd);
+
+        saveSession(data);
+
+        location.href = getAppRedirect(data.user);
+
       } catch (err) {
         errEl.textContent = err.message || 'Falha ao criar conta';
         errEl.classList.remove('hidden');
@@ -266,35 +309,42 @@
       }
     });
 
-    // ── Submit Recuperação ────────────────────────────────
+    // Recuperação
     document.getElementById('forgotForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const errEl = document.getElementById('forgotError');
       const msgEl = document.getElementById('forgotMsg');
+
       errEl.classList.add('hidden');
       msgEl.classList.add('hidden');
+      errEl.textContent = '';
+      msgEl.textContent = '';
+
       try {
-        await AuthAPI.forgotPassword(document.getElementById('forgotEmail').value);
+        await AuthAPI.forgotPassword(document.getElementById('forgotEmail').value.trim());
         msgEl.textContent = 'Se o e-mail existir, você receberá as instruções em breve.';
         msgEl.classList.remove('hidden');
       } catch (err) {
-        errEl.textContent = err.message;
+        errEl.textContent = err.message || 'Falha ao enviar recuperação';
         errEl.classList.remove('hidden');
       }
     });
 
-    // Gera/recupera deviceId único
-    function getDeviceId() {
-      let id = localStorage.getItem('afaia_device_id');
-      if (!id) {
-        id = 'dev_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
-        localStorage.setItem('afaia_device_id', id);
-      }
-      return id;
-    }
+    // Se já logado, tenta ir para a área correta
+    (function () {
+      const token = localStorage.getItem('afaia_token');
+      const rawUser = localStorage.getItem('afaia_user');
 
-    // Se já logado, vai para o app
-    if (localStorage.getItem('afaia_token')) location.href = '/app.html';
+      if (!token || !rawUser) return;
+
+      try {
+        const user = JSON.parse(rawUser);
+        location.href = getAppRedirect(user);
+      } catch {
+        localStorage.removeItem('afaia_user');
+      }
+    })();
   </script>
 </body>
 </html>
