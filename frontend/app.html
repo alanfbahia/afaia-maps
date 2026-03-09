@@ -1,260 +1,216 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <!-- Viewport otimizado para app nativo: sem zoom, respeitando notch -->
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
-                 user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-  <meta name="theme-color" content="#1e293b">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Afaia Maps">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="description" content="Afaia Maps – Mapeamento de campo com GPS offline">
+<meta charset="UTF-8">
 
-  <title>Mapa – Afaia Maps</title>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0,
+user-scalable=no, viewport-fit=cover">
 
-  <link rel="manifest"          href="/manifest.json">
-  <link rel="apple-touch-icon"  href="/icons/icon-152.png">
-  <link rel="apple-touch-icon"  href="/icons/icon-192.png" sizes="192x192">
-  <link rel="icon"              href="/icons/icon-96.png"  type="image/png">
+<meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#1e293b">
 
-  <!-- Apple Splash Screens -->
-  <link rel="apple-touch-startup-image" href="/splash/splash-2048x2732.png"
-        media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/splash/splash-1668x2388.png"
-        media="(device-width: 834px)  and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2)">
-  <link rel="apple-touch-startup-image" href="/splash/splash-1170x2532.png"
-        media="(device-width: 390px)  and (device-height: 844px)  and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/splash/splash-1125x2436.png"
-        media="(device-width: 375px)  and (device-height: 812px)  and (-webkit-device-pixel-ratio: 3)">
-  <link rel="apple-touch-startup-image" href="/splash/splash-750x1334.png"
-        media="(device-width: 375px)  and (device-height: 667px)  and (-webkit-device-pixel-ratio: 2)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Afaia Maps">
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="/css/app.css">
-  <link rel="stylesheet" href="/css/mobile.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="format-detection" content="telephone=no">
 
-  <style>
-    #map { position: absolute; inset: 0; z-index: 0; }
-    .map-page {
-      position: relative;
-      width: 100%;
-      height: 100dvh;
-      overflow: hidden;
-    }
-  </style>
+<meta name="description"
+content="Afaia Maps – Mapeamento de campo com GPS offline">
+
+<title>Mapa – Afaia Maps</title>
+
+<link rel="manifest" href="/manifest.json">
+
+<link rel="apple-touch-icon" href="/icons/icon-152.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png" sizes="192x192">
+
+<link rel="icon" href="/icons/icon-96.png" type="image/png">
+
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/mobile.css">
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+#map{
+position:absolute;
+inset:0;
+z-index:0;
+}
+
+.map-page{
+position:relative;
+width:100%;
+height:100dvh;
+overflow:hidden;
+}
+
+</style>
+
 </head>
+
 <body class="app-body">
 
-<!-- ── Splash overlay (web/PWA) ──────────────────────────── -->
 <div id="splashOverlay">
-  <div class="splash-icon"><i class="fa fa-map-location-dot"></i></div>
-  <div class="splash-name">Afaia Maps</div>
-  <div class="splash-sub">Mapeamento de campo</div>
+
+<div class="splash-icon">
+<i class="fa fa-map-location-dot"></i>
 </div>
 
-<!-- ── Offline Banner ────────────────────────────────────── -->
+<div class="splash-name">
+Afaia Maps
+</div>
+
+<div class="splash-sub">
+Mapeamento de campo
+</div>
+
+</div>
+
 <div id="offlineBanner" class="offline-banner hidden">
-  <i class="fa fa-wifi-slash"></i>&nbsp; Sem conexão — usando dados locais
+
+<i class="fa fa-wifi-slash"></i>
+
+Sem conexão — usando dados locais
+
 </div>
 
 <div class="map-page">
 
-  <!-- Mapa Leaflet -->
-  <div id="map"></div>
+<div id="map"></div>
 
-  <!-- ── Sidebar (desktop / tablet) ───────────────────── -->
-  <nav id="sidebar" class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon"><i class="fa fa-map-location-dot"></i></div>
-      <span class="logo-text">Afaia Maps</span>
-    </div>
-    <div class="sidebar-nav">
-      <a href="/app.html"       class="nav-item active"><i class="fa fa-map"></i><span>Mapa</span></a>
-      <a href="/maps.html"      class="nav-item"><i class="fa fa-layer-group"></i><span>Biblioteca</span></a>
-      <a href="/tracks.html"    class="nav-item"><i class="fa fa-route"></i><span>Trilhas</span></a>
-      <a href="/waypoints.html" class="nav-item"><i class="fa fa-map-pin"></i><span>Waypoints</span></a>
-      <a href="/projects.html"  class="nav-item"><i class="fa fa-folder-open"></i><span>Projetos</span></a>
-    </div>
-    <div class="sidebar-footer">
-      <div class="sync-status" id="syncStatus">
-        <i class="fa fa-circle-check"></i><span>Sincronizado</span>
-      </div>
-      <a href="#" class="nav-item" id="logoutBtn">
-        <i class="fa fa-right-from-bracket"></i><span>Sair</span>
-      </a>
-    </div>
-  </nav>
+<nav id="sidebar" class="sidebar">
 
-  <!-- ── Controles flutuantes do mapa ──────────────────── -->
-  <div class="map-controls">
-    <button class="map-btn" id="btnLocate"   title="Minha localização">
-      <i class="fa fa-location-crosshairs"></i>
-    </button>
-    <button class="map-btn" id="btnLayers"   title="Camadas">
-      <i class="fa fa-layer-group"></i>
-    </button>
-    <button class="map-btn record" id="btnRecord" title="Gravar trilha">
-      <i class="fa fa-circle-dot"></i>
-    </button>
-    <button class="map-btn" id="btnWaypoint" title="Novo waypoint">
-      <i class="fa fa-map-pin"></i>
-    </button>
-    <button class="map-btn" id="btnCamera"   title="Foto georreferenciada">
-      <i class="fa fa-camera"></i>
-    </button>
-  </div>
+<div class="sidebar-logo">
 
-  <!-- ── HUD de gravação de trilha ─────────────────────── -->
-  <div id="trackHUD" class="track-hud hidden">
-    <div class="hud-row">
-      <span class="hud-label">Gravando</span>
-      <span class="hud-recording-dot"></span>
-    </div>
-    <div class="hud-stats">
-      <div class="hud-stat"><span id="hudDist">0.0</span><small>km</small></div>
-      <div class="hud-stat"><span id="hudTime">00:00</span><small>tempo</small></div>
-      <div class="hud-stat"><span id="hudSpeed">0.0</span><small>km/h</small></div>
-      <div class="hud-stat"><span id="hudPoints">0</span><small>pontos</small></div>
-    </div>
-    <div class="hud-actions">
-      <button class="btn-danger-sm" id="btnStopTrack">
-        <i class="fa fa-stop"></i> Finalizar
-      </button>
-    </div>
-  </div>
-
-  <!-- ── Painel de camadas ──────────────────────────────── -->
-  <div id="layersPanel" class="layers-panel hidden">
-    <div class="panel-header">
-      <h3>Camadas</h3>
-      <button class="btn-icon" id="closeLayersPanel"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="panel-body">
-      <h4>Mapa base</h4>
-      <label class="radio-row">
-        <input type="radio" name="baseLayer" value="osm" checked> OpenStreetMap
-      </label>
-      <label class="radio-row">
-        <input type="radio" name="baseLayer" value="satellite"> Satélite (Esri)
-      </label>
-      <label class="radio-row">
-        <input type="radio" name="baseLayer" value="terrain"> Relevo (OpenTopo)
-      </label>
-
-      <h4 style="margin-top:1rem">Overlays</h4>
-      <label class="checkbox-row">
-        <input type="checkbox" id="toggleTracks" checked> Trilhas
-      </label>
-      <label class="checkbox-row">
-        <input type="checkbox" id="toggleWaypoints" checked> Waypoints
-      </label>
-      <label class="checkbox-row">
-        <input type="checkbox" id="togglePhotos" checked> Fotos
-      </label>
-
-      <h4 style="margin-top:1rem">Cache offline</h4>
-      <button class="btn-ghost" id="btnCacheTiles" style="width:100%;font-size:.85rem;margin-top:.25rem">
-        <i class="fa fa-download"></i> Cachear área visível
-      </button>
-    </div>
-  </div>
-
-  <!-- ── Bottom Navigation (mobile) ────────────────────── -->
-  <nav class="bottom-nav" id="bottomNav">
-    <a href="/app.html"       class="bn-item active"><i class="fa fa-map"></i><span>Mapa</span></a>
-    <a href="/maps.html"      class="bn-item"><i class="fa fa-layer-group"></i><span>Mapas</span></a>
-    <a href="/tracks.html"    class="bn-item"><i class="fa fa-route"></i><span>Trilhas</span></a>
-    <a href="/waypoints.html" class="bn-item"><i class="fa fa-map-pin"></i><span>WPs</span></a>
-    <a href="/projects.html"  class="bn-item"><i class="fa fa-folder"></i><span>Projetos</span></a>
-  </nav>
-
-</div><!-- /map-page -->
-
-<!-- ── Modal: Novo Waypoint ──────────────────────────────── -->
-<div id="waypointModal" class="modal hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3><i class="fa fa-map-pin" style="color:var(--warning)"></i> Novo Waypoint</h3>
-      <button class="btn-icon" id="closeWpModal"><i class="fa fa-times"></i></button>
-    </div>
-    <form id="waypointForm" class="modal-body">
-      <input type="hidden" id="wpLat">
-      <input type="hidden" id="wpLng">
-      <div class="form-group">
-        <label>Nome</label>
-        <input id="wpName" type="text" placeholder="Nome do ponto" required>
-      </div>
-      <div class="form-group">
-        <label>Descrição</label>
-        <textarea id="wpDesc" rows="2" placeholder="Opcional"></textarea>
-      </div>
-      <div class="form-group">
-        <label>Símbolo</label>
-        <select id="wpSymbol">
-          <option value="pin">📍 Pin</option>
-          <option value="flag">🚩 Bandeira</option>
-          <option value="warning">⚠️ Alerta</option>
-          <option value="camp">⛺ Acampamento</option>
-          <option value="water">💧 Água</option>
-          <option value="photo">📸 Foto</option>
-          <option value="sample">🧪 Amostra</option>
-          <option value="damage">💥 Dano</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Cor</label>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="colorPicker">
-          <button type="button" class="color-dot active" data-color="#f59e0b" style="background:#f59e0b"></button>
-          <button type="button" class="color-dot" data-color="#ef4444" style="background:#ef4444"></button>
-          <button type="button" class="color-dot" data-color="#10b981" style="background:#10b981"></button>
-          <button type="button" class="color-dot" data-color="#2563eb" style="background:#2563eb"></button>
-          <button type="button" class="color-dot" data-color="#8b5cf6" style="background:#8b5cf6"></button>
-          <button type="button" class="color-dot" data-color="#ec4899" style="background:#ec4899"></button>
-        </div>
-      </div>
-      <small class="coords-display" id="wpCoordsDisplay"></small>
-      <div class="modal-footer">
-        <button type="button" class="btn-ghost" id="cancelWpModal">Cancelar</button>
-        <button type="submit" class="btn-primary"><i class="fa fa-check"></i> Salvar</button>
-      </div>
-    </form>
-  </div>
+<div class="logo-icon">
+<i class="fa fa-map-location-dot"></i>
 </div>
 
-<!-- ── Modal: Foto capturada ─────────────────────────────── -->
-<div id="photoModal" class="modal hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3><i class="fa fa-camera" style="color:var(--primary)"></i> Foto de Campo</h3>
-      <button class="btn-icon" id="closePhotoModal"><i class="fa fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <img id="photoPreview" style="width:100%;border-radius:8px;margin-bottom:.5rem">
-      <div class="form-group">
-        <label>Legenda</label>
-        <input id="photoCaption" type="text" placeholder="Descreva a foto">
-      </div>
-      <small id="photoGPSInfo" class="coords-display"></small>
-      <div class="modal-footer">
-        <button type="button" class="btn-ghost" id="cancelPhotoModal">Descartar</button>
-        <button type="button" class="btn-primary" id="savePhoto">
-          <i class="fa fa-floppy-disk"></i> Salvar
-        </button>
-      </div>
-    </div>
-  </div>
+<span class="logo-text">
+Afaia Maps
+</span>
+
 </div>
 
-<!-- ── Scripts ────────────────────────────────────────────── -->
+<div class="sidebar-nav">
+
+<a href="/app.html" class="nav-item active">
+<i class="fa fa-map"></i>
+<span>Mapa</span>
+</a>
+
+<a href="/maps-library.html" class="nav-item">
+<i class="fa fa-layer-group"></i>
+<span>Biblioteca</span>
+</a>
+
+<a href="/tracks.html" class="nav-item">
+<i class="fa fa-route"></i>
+<span>Trilhas</span>
+</a>
+
+<a href="/waypoints.html" class="nav-item">
+<i class="fa fa-map-pin"></i>
+<span>Waypoints</span>
+</a>
+
+<a href="/projects.html" class="nav-item">
+<i class="fa fa-folder-open"></i>
+<span>Projetos</span>
+</a>
+
+</div>
+
+<div class="sidebar-footer">
+
+<div class="sync-status" id="syncStatus">
+
+<i class="fa fa-circle-check"></i>
+
+<span>Sincronizado</span>
+
+</div>
+
+<a href="#" class="nav-item" id="logoutBtn">
+
+<i class="fa fa-right-from-bracket"></i>
+
+<span>Sair</span>
+
+</a>
+
+</div>
+
+</nav>
+
+<div class="map-controls">
+
+<button class="map-btn" id="btnLocate">
+<i class="fa fa-location-crosshairs"></i>
+</button>
+
+<button class="map-btn" id="btnLayers">
+<i class="fa fa-layer-group"></i>
+</button>
+
+<button class="map-btn record" id="btnRecord">
+<i class="fa fa-circle-dot"></i>
+</button>
+
+<button class="map-btn" id="btnWaypoint">
+<i class="fa fa-map-pin"></i>
+</button>
+
+<button class="map-btn" id="btnCamera">
+<i class="fa fa-camera"></i>
+</button>
+
+</div>
+
+<nav class="bottom-nav" id="bottomNav">
+
+<a href="/app.html" class="bn-item active">
+<i class="fa fa-map"></i>
+<span>Mapa</span>
+</a>
+
+<a href="/maps-library.html" class="bn-item">
+<i class="fa fa-layer-group"></i>
+<span>Mapas</span>
+</a>
+
+<a href="/tracks.html" class="bn-item">
+<i class="fa fa-route"></i>
+<span>Trilhas</span>
+</a>
+
+<a href="/waypoints.html" class="bn-item">
+<i class="fa fa-map-pin"></i>
+<span>WPs</span>
+</a>
+
+<a href="/projects.html" class="bn-item">
+<i class="fa fa-folder"></i>
+<span>Projetos</span>
+</a>
+
+</nav>
+
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet-src.min.js"></script>
+
 <script src="/js/db.js"></script>
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
@@ -264,157 +220,5 @@
 <script src="/js/tracks.js"></script>
 <script src="/js/waypoints.js"></script>
 
-<style>
-  .color-dot {
-    width: 28px; height: 28px; border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer; transition: transform .15s, border-color .15s;
-  }
-  .color-dot:hover { transform: scale(1.15); }
-  .color-dot.active { border-color: #fff; transform: scale(1.2); }
-</style>
-
-<script>
-// ── Service Worker ─────────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(reg => {
-      console.log('[PWA] SW registrado:', reg.scope);
-      // Solicita periodic sync se suportado
-      if ('periodicSync' in reg) {
-        reg.periodicSync.register('periodic-sync', { minInterval: 30 * 60 * 1000 })
-          .catch(() => {});
-      }
-    })
-    .catch(err => console.warn('[PWA] SW não registrado:', err));
-}
-
-// ── Auth guard ─────────────────────────────────────────────
-if (!localStorage.getItem('afaia_token') && !window.Capacitor) {
-  location.href = '/login.html';
-}
-
-// ── Splash screen web ─────────────────────────────────────
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const splash = document.getElementById('splashOverlay');
-    if (splash) {
-      splash.classList.add('fade-out');
-      setTimeout(() => splash.remove(), 600);
-    }
-  }, 800);
-});
-
-// ── Logout ────────────────────────────────────────────────
-document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
-  e.preventDefault();
-  Haptic.light();
-  localStorage.removeItem('afaia_token');
-  localStorage.removeItem('afaia_user');
-  location.href = '/login.html';
-});
-
-// ── Color picker ─────────────────────────────────────────
-let _selectedColor = '#f59e0b';
-document.getElementById('colorPicker')?.addEventListener('click', (e) => {
-  const dot = e.target.closest('.color-dot');
-  if (!dot) return;
-  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-  dot.classList.add('active');
-  _selectedColor = dot.dataset.color;
-});
-
-// ── Botão câmera ──────────────────────────────────────────
-document.getElementById('btnCamera')?.addEventListener('click', async () => {
-  try {
-    Haptic.light();
-    const photo = await NativeCamera.takePicture({ saveToGallery: false });
-
-    document.getElementById('photoPreview').src = photo.dataUrl;
-    document.getElementById('photoGPSInfo').textContent =
-      photo.lat ? `GPS: ${photo.lat.toFixed(6)}, ${photo.lng.toFixed(6)}` : 'GPS não disponível';
-
-    document.getElementById('photoModal')?.classList.remove('hidden');
-
-    // Armazena dados para salvar depois
-    window._pendingPhoto = photo;
-  } catch (err) {
-    if (!err.message.includes('User cancelled')) {
-      showToast('Falha ao abrir câmera: ' + err.message, 'error');
-    }
-  }
-});
-
-document.getElementById('closePhotoModal')?.addEventListener('click', () => {
-  document.getElementById('photoModal')?.classList.add('hidden');
-  window._pendingPhoto = null;
-});
-document.getElementById('cancelPhotoModal')?.addEventListener('click', () => {
-  document.getElementById('photoModal')?.classList.add('hidden');
-  window._pendingPhoto = null;
-});
-
-document.getElementById('savePhoto')?.addEventListener('click', async () => {
-  const photo = window._pendingPhoto;
-  if (!photo) return;
-
-  const caption = document.getElementById('photoCaption').value;
-  Haptic.success();
-
-  const formData = new FormData();
-  // Converte dataUrl para Blob
-  const res  = await fetch(photo.dataUrl);
-  const blob = await res.blob();
-  formData.append('photo',    blob, `field_photo_${Date.now()}.jpg`);
-  formData.append('caption',  caption);
-  if (photo.lat)  formData.append('lat',      photo.lat);
-  if (photo.lng)  formData.append('lng',      photo.lng);
-  if (photo.altitude) formData.append('altitude', photo.altitude);
-  formData.append('taken_at', photo.taken_at);
-  formData.append('device_id', localStorage.getItem('afaia_device_id') || '');
-
-  try {
-    if (navigator.onLine) {
-      await PhotosAPI.upload(formData);
-      showToast('Foto salva', 'success');
-    } else {
-      showToast('Foto salva localmente (sync pendente)', 'default');
-    }
-  } catch (err) {
-    showToast('Erro ao salvar foto: ' + err.message, 'error');
-  }
-
-  document.getElementById('photoModal')?.classList.add('hidden');
-  window._pendingPhoto = null;
-  document.getElementById('photoCaption').value = '';
-});
-
-// ── Cachear tiles da área visível ────────────────────────
-document.getElementById('btnCacheTiles')?.addEventListener('click', async () => {
-  const map = window.getMap?.();
-  if (!map) return;
-
-  const bounds = map.getBounds();
-  const zoom   = map.getZoom();
-  const sw     = bounds.getSouthWest();
-  const ne     = bounds.getNorthEast();
-
-  showToast(`Cacheando tiles zoom ${zoom}...`, 'default');
-
-  // Solicita ao SW que cacheia os tiles visíveis
-  const reg = await navigator.serviceWorker.ready;
-  reg.active?.postMessage({ type: 'CACHE_TILES_AREA', bounds: { sw, ne, zoom } });
-
-  document.getElementById('layersPanel')?.classList.add('hidden');
-});
-
-// ── Inicializa app ────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  initMap();
-  initTracks();
-  initWaypoints();
-  SyncManager.init();
-});
-</script>
 </body>
 </html>
