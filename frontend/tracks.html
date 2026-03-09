@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trilhas — Afaia Maps</title>
+
+<link rel="stylesheet" href="/css/app.css">
+<link rel="stylesheet" href="/css/mobile.css">
+
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css">
+
+</head>
+
+<body class="app-body">
+
+<nav class="sidebar">
+
+<div class="sidebar-logo">
+<div class="logo-icon">
+<i class="fa fa-map-location-dot"></i>
+</div>
+<span class="logo-text">Afaia Maps</span>
+</div>
+
+<div class="sidebar-nav">
+
+<a href="/app.html" class="nav-item">
+<i class="fa fa-map"></i>
+<span>Mapa</span>
+</a>
+
+<a href="/maps-library.html" class="nav-item">
+<i class="fa fa-layer-group"></i>
+<span>Biblioteca</span>
+</a>
+
+<a href="/tracks.html" class="nav-item active">
+<i class="fa fa-route"></i>
+<span>Trilhas</span>
+</a>
+
+<a href="/waypoints.html" class="nav-item">
+<i class="fa fa-map-pin"></i>
+<span>Waypoints</span>
+</a>
+
+<a href="/projects.html" class="nav-item">
+<i class="fa fa-folder-open"></i>
+<span>Projetos</span>
+</a>
+
+</div>
+
+</nav>
+
+<main style="margin-left:240px;padding:40px">
+
+<h1>Trilhas</h1>
+
+<div id="tracksList">
+Carregando trilhas...
+</div>
+
+</main>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/tracks.js"></script>
+
+</body>
+</html>
